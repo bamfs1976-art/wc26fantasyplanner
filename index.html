@@ -1,0 +1,3416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 Fantasy Planner</title>
+<meta name="description" content="World Cup 2026 Fantasy Planner with fixture mismatches, player picks and captain log.">
+<style>
+  :root {
+    /* Light theme by default - soft, easy on the eye */
+    --bg: #f8f9fb;
+    --panel: #ffffff;
+    --panel-2: #f1f3f7;
+    --border: #e3e6ee;
+    --text: #2a2d3a;
+    --muted: #6b7385;
+    --teal: #0a8f6b;
+    --navy: #2a4a6b;
+    --gold: #c89f2a;
+    --red: #b03a2e;
+    --green: #1e9456;
+    --amber: #d68410;
+    --blue: #3a7fd6;
+    --focus: #5b8def;
+    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; }
+  a { color: var(--teal); }
+  button { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  header {
+    background: linear-gradient(135deg, var(--navy), #3a5a7a);
+    padding: 18px 20px;
+    border-bottom: 2px solid var(--teal);
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+    color: #ffffff;
+  }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.3px; color: #ffffff; }
+  header .meta { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+  nav.tabs {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    background: var(--panel); padding: 8px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  nav.tabs button {
+    background: transparent; color: var(--muted); border: 1px solid transparent;
+    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+  }
+  nav.tabs button:hover { color: var(--text); background: var(--panel-2); }
+  nav.tabs button.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+  main { padding: 16px; max-width: 1200px; margin: 0 auto; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .panel h2 { margin: 0 0 12px 0; font-size: 15px; color: var(--teal); font-weight: 600; }
+  .panel h3 { margin: 14px 0 8px 0; font-size: 13px; color: var(--navy); font-weight: 600; }
+
+  .fixture {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .fixture-header {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 8px; margin-bottom: 8px;
+  }
+  .fixture-teams { font-weight: 600; font-size: 14px; }
+  .fixture-meta { font-size: 11px; color: var(--muted); }
+  .gap-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 600; margin-left: 6px;
+  }
+  .gap-huge { background: var(--green); color: #ffffff; }
+  .gap-big { background: var(--gold); color: #ffffff; }
+  .gap-med { background: var(--amber); color: #ffffff; }
+  .gap-small { background: var(--border); color: var(--muted); }
+  .gap-tiny { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+
+  /* FDR badges - colour-coded difficulty (1 easy -> 5 very hard) */
+  .fdr {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 18px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
+    margin-left: 4px; vertical-align: middle;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.12);
+  }
+  .fdr-1 { background: #20c997; color: #052e16; }
+  .fdr-2 { background: #88e15a; color: #1a2e05; }
+  .fdr-3 { background: #facc15; color: #422006; }
+  .fdr-4 { background: #fb7185; color: #4c0519; }
+  .fdr-5 { background: #e11d48; color: #fff1f2; }
+  .fdr-lg { width: 28px; height: 24px; font-size: 13px; border-radius: 5px; margin-left: 0; }
+
+  /* FDR / Groups screen */
+  .fdr-legend {
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+    padding: 12px 14px; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 6px; margin-bottom: 14px;
+    font-size: 13px;
+  }
+  .fdr-legend .label { color: var(--muted); font-weight: 600; }
+  .fdr-legend .scale { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); }
+  .fdr-groups-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  .fdr-group-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; box-shadow: var(--shadow);
+  }
+  .fdr-group-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 8px; margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fdr-group-head .letter {
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .fdr-group-head .avg {
+    font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .fdr-row {
+    display: grid; grid-template-columns: 1fr auto auto;
+    gap: 10px; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid var(--panel-2);
+  }
+  .fdr-row:last-child { border-bottom: none; }
+  .fdr-team {
+    display: flex; flex-direction: column;
+    min-width: 0;
+  }
+  .fdr-team .name { font-weight: 600; font-size: 13px; color: var(--text); }
+  .fdr-team .sub { font-size: 10px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+  .fdr-opps { display: flex; gap: 3px; }
+  .fdr-avg-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 8px; border-radius: 10px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    font-variant-numeric: tabular-nums; min-width: 44px; justify-content: center;
+  }
+  .fdr-avg-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .fdr-fixture-list {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 14px;
+  }
+  .fdr-fixture-list .fx {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 8px; background: var(--panel-2);
+    border-radius: 4px; font-size: 12px;
+  }
+  .fdr-fixture-list .fx .who { display: flex; align-items: center; gap: 4px; }
+  .fdr-fixture-list .fx .when { color: var(--muted); font-size: 11px; }
+
+  /* Tournament FDR table */
+  .fdr-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .fdr-table th, .fdr-table td {
+    text-align: left; padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fdr-table th {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+    background: var(--panel-2);
+  }
+  .fdr-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .fdr-table tr:hover td { background: var(--panel-2); }
+  .fdr-table .team-cell { font-weight: 600; min-width: 140px; }
+  .fdr-table .group-tag {
+    display: inline-block; padding: 1px 6px;
+    background: var(--navy); color: #ffffff;
+    border-radius: 3px; font-size: 10px; font-weight: 700;
+    margin-left: 6px;
+  }
+  .fdr-table .round-cell { white-space: nowrap; }
+  .fdr-table .round-cell .opp { color: var(--muted); font-size: 11px; margin-right: 4px; }
+
+  /* Captain picks */
+  .cap-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  .cap-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; box-shadow: var(--shadow);
+  }
+  .cap-card h3 { margin: 0 0 10px 0; font-size: 13px; color: var(--navy); }
+  .cap-row {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 8px; padding: 9px 0;
+    border-bottom: 1px solid var(--panel-2);
+  }
+  .cap-row:last-child { border-bottom: none; }
+  .cap-row .matchup { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .cap-row .matchup .team { font-weight: 600; }
+  .cap-row .matchup .vs { color: var(--muted); margin: 0 2px; }
+  .cap-row .matchup .opp { color: var(--muted); }
+  .cap-row .score-pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 32px; height: 24px; padding: 0 8px;
+    background: var(--teal); color: #ffffff;
+    border-radius: 12px; font-size: 12px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .cap-row .score-pill.hi   { background: #15803d; }
+  .cap-row .score-pill.med  { background: var(--gold); color: #2d1d00; }
+  .cap-row .score-pill.lo   { background: var(--muted); }
+  .cap-row .pick-hint {
+    grid-column: 1 / -1;
+    font-size: 12px; color: var(--muted); padding-top: 4px;
+    border-top: 1px dashed transparent;
+  }
+  .cap-row .pick-hint strong { color: var(--text); }
+  .cap-row .cap-meta {
+    grid-column: 1 / -1;
+    font-size: 11px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    padding-top: 2px;
+  }
+  .cap-row .pick-warn {
+    grid-column: 1 / -1;
+    font-size: 11px; color: var(--red);
+    padding: 4px 8px; margin-top: 4px;
+    background: rgba(176, 58, 46, 0.08);
+    border-left: 3px solid var(--red);
+    border-radius: 0 4px 4px 0;
+  }
+  .cap-row .pick-warn strong { color: var(--red); }
+  .cap-row .pick-warn span { color: var(--text); }
+
+  /* Team Form table */
+  .form-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .form-table th, .form-table td {
+    text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border);
+  }
+  .form-table th {
+    background: var(--panel-2); font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    cursor: pointer; user-select: none;
+  }
+  .form-table th:hover { color: var(--text); }
+  .form-table th.sort-asc::after  { content: " ▲"; color: var(--teal); }
+  .form-table th.sort-desc::after { content: " ▼"; color: var(--teal); }
+  .form-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .form-table tr:hover td { background: var(--panel-2); }
+  .form-tier {
+    display: inline-block; padding: 1px 7px; border-radius: 10px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .form-tier.target { background: var(--green); color: #fff; }
+  .form-tier.mid    { background: var(--gold); color: #2d1d00; }
+  .form-tier.fade   { background: var(--border); color: var(--muted); }
+  .form-combust { color: var(--red); font-weight: 700; margin-left: 4px; }
+
+  /* Clean-sheet panel */
+  .cs-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  .cs-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; box-shadow: var(--shadow);
+  }
+  .cs-card h3 { margin: 0 0 10px 0; font-size: 13px; color: var(--navy); }
+  .cs-row {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 8px; padding: 8px 0;
+    border-bottom: 1px solid var(--panel-2);
+  }
+  .cs-row:last-child { border-bottom: none; }
+  .cs-team { font-weight: 600; }
+  .cs-opp { color: var(--muted); font-size: 12px; }
+  .cs-score-pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 36px; height: 24px; padding: 0 8px;
+    background: var(--teal); color: #ffffff;
+    border-radius: 12px; font-size: 12px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .cs-score-pill.hi  { background: #15803d; }
+  .cs-score-pill.med { background: var(--gold); color: #2d1d00; }
+  .cs-score-pill.lo  { background: var(--muted); }
+  .cs-meta {
+    grid-column: 1 / -1;
+    font-size: 11px; color: var(--muted);
+    font-variant-numeric: tabular-nums; padding-top: 2px;
+  }
+
+  .player-section { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  @media (max-width: 600px) { .player-section { grid-template-columns: 1fr; } }
+  .player-box { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 8px; }
+  .player-box label { display: block; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .player-box textarea {
+    width: 100%; background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px; resize: vertical; min-height: 56px;
+  }
+  .attack-label { color: var(--amber); }
+  .defence-label { color: var(--blue); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--panel-2); color: var(--navy); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  tr:hover td { background: var(--panel-2); }
+
+  .captain-row {
+    display: grid; grid-template-columns: 90px 1fr 1fr 90px;
+    gap: 10px; align-items: center; padding: 10px; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px;
+  }
+  @media (max-width: 700px) { .captain-row { grid-template-columns: 1fr; } }
+  .captain-row .round-label { font-weight: 600; color: var(--teal); }
+  .captain-row input[type="text"], .captain-row textarea, .captain-row input[type="number"] {
+    width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;
+  }
+  .captain-row textarea { min-height: 36px; resize: vertical; }
+  .points-input { text-align: right; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .btn {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+  }
+  .btn:hover { border-color: var(--teal); }
+  .btn-primary { background: var(--teal); color: white; border-color: var(--teal); }
+  .btn-danger { background: var(--red); color: white; border-color: var(--red); }
+  .btn.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .summary-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+  .summary-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .summary-card .value { font-size: 22px; font-weight: 600; color: var(--teal); margin-top: 4px; }
+
+  details { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; }
+  details summary { cursor: pointer; padding: 10px 14px; font-weight: 600; }
+  details[open] summary { border-bottom: 1px solid var(--border); color: var(--teal); }
+  details > div { padding: 12px 14px; }
+
+  .status { font-size: 12px; color: var(--muted); margin-left: 8px; }
+  .status.saved { color: var(--green); }
+
+  footer { text-align: center; padding: 16px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>World Cup 2026 Fantasy Planner</h1>
+    <div class="meta">Mismatch finder, player picks and captain log. FIFA rankings as of 1 April 2026.</div>
+  </div>
+  <div>
+    <button class="btn" id="themeToggle" aria-label="Toggle light or dark mode">Light mode</button>
+    <span class="status" id="saveStatus">Auto-saved</span>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="active" data-tab="overview" role="tab">Overview</button>
+  <button data-tab="mysquad" role="tab">My Squad</button>
+  <button data-tab="news" role="tab">Squad News</button>
+  <button data-tab="optimum" role="tab">Optimum XI</button>
+  <button data-tab="projection" role="tab">Projection</button>
+  <button data-tab="rules" role="tab">Rules</button>
+  <button data-tab="fdr" role="tab">Fixture Difficulty</button>
+  <button data-tab="form" role="tab">Team Form</button>
+  <button data-tab="round1" role="tab">Round 1</button>
+  <button data-tab="round2" role="tab">Round 2</button>
+  <button data-tab="round3" role="tab">Round 3</button>
+  <button data-tab="boosters" role="tab">Boosters</button>
+  <button data-tab="transfers" role="tab">Transfers</button>
+  <button data-tab="captains" role="tab">Captain Log</button>
+  <button data-tab="strategy" role="tab">Strategy</button>
+</nav>
+
+<main>
+
+<section class="tab-content active" id="tab-overview">
+  <div class="panel">
+    <h2>Mismatch summary</h2>
+    <div class="summary-grid" id="summaryGrid"></div>
+    <p style="color: var(--muted); font-size: 13px;">Mismatches sorted by FIFA ranking gap. Heaviest gaps mean best captain and defence value. Round 3 is where most elite sides face their weakest group opponent.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Top 15 ranking gap fixtures</h2>
+    <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+      <button class="btn sort-btn active" data-sort="gap" aria-label="Sort by gap">Sort by gap</button>
+      <button class="btn sort-btn" data-sort="round" aria-label="Sort by round and date">Sort by round/date</button>
+      <button class="btn sort-btn" data-sort="coverage" aria-label="Sort by my squad coverage">Sort by my coverage</button>
+    </div>
+    <table id="topMismatchTable">
+      <thead><tr><th>#</th><th>Round</th><th>Fixture</th><th>Gap</th><th>BST kick-off</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>How to use this planner</h2>
+    <ul style="color: var(--muted); font-size: 13px; line-height: 1.7;">
+      <li><strong>Optimum XI tab</strong>: ready-made $100m squad to get through the group stages, with starting XI, bench, captain pick and round by round plan.</li>
+      <li><strong>Rules tab</strong>: full breakdown of the game rules, transfers, scoring and per-nation limits.</li>
+      <li><strong>Round tabs</strong>: show all 24 group matches per matchday with ranking gap badges, venue and editable player picks.</li>
+      <li><strong>Boosters tab</strong>: planner for your 5 chips with a recommended deployment plan.</li>
+      <li><strong>Transfers tab</strong>: plan your 2 free transfers per round with rationale notes.</li>
+      <li><strong>Captain Log</strong>: tracks who you captained each round, points scored and notes.</li>
+      <li><strong>Strategy tab</strong>: defence stacking and squad spine analysis.</li>
+      <li>All edits auto-save to your browser. Export to JSON from the Captain Log tab to back up.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-mysquad">
+  <div class="panel">
+    <h2>My squad</h2>
+    <p style="color: var(--muted); font-size: 13px;">Build and manage your actual FIFA fantasy squad. Live budget, per-nation and projection tracking. Use the swap calculator below to test transfers.</p>
+    <div class="summary-grid" id="squadSummary"></div>
+    <div style="margin-top: 12px;">
+      <button class="btn" id="prefillSquad" aria-label="Load Anthony's current squad">Load my current squad</button>
+      <button class="btn btn-danger" id="clearSquad" style="margin-left: 8px;" aria-label="Clear all players">Clear all</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Your 15 players</h2>
+    <p style="color: var(--muted); font-size: 13px;">Mark your captain (C) and vice captain (VC). Click Remove to drop a player.</p>
+    <div id="squadList"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Add a player</h2>
+    <p style="color: var(--muted); font-size: 13px;">Filter the player pool then click Add. Players already in your squad are hidden.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+      <input type="text" id="playerSearch" placeholder="Search by name or team..." aria-label="Search players" style="flex: 1; min-width: 180px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+      <select id="positionFilter" aria-label="Filter by position" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+        <option value="">All positions</option>
+        <option value="GK">GK</option>
+        <option value="DEF">DEF</option>
+        <option value="MID">MID</option>
+        <option value="FWD">FWD</option>
+      </select>
+      <select id="sortFilter" aria-label="Sort by" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+        <option value="price-desc">Price (high to low)</option>
+        <option value="price-asc">Price (low to high)</option>
+        <option value="name">Name</option>
+        <option value="team">Team</option>
+      </select>
+    </div>
+    <div id="playerPool" style="max-height: 400px; overflow-y: auto;"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Swap calculator</h2>
+    <p style="color: var(--muted); font-size: 13px;">Test a transfer: pick a player to swap out from your squad, then a replacement. See xPts delta, budget impact and whether limits are respected.</p>
+    <div id="swapCalculator"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Transfer suggester</h2>
+    <p style="color: var(--muted); font-size: 13px;">Finds the best legal single-swap from your squad. Ranks by xPts gain or top-15 mismatch coverage gain.</p>
+    <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+      <button class="btn suggest-btn active" data-metric="xpts" aria-label="Rank by xPts gain">Rank by xPts</button>
+      <button class="btn suggest-btn" data-metric="coverage" aria-label="Rank by coverage gain">Rank by coverage</button>
+      <button class="btn btn-primary" id="runSuggester" aria-label="Run suggester">Find best swaps</button>
+    </div>
+    <div id="suggesterResults"></div>
+  </div>
+
+  <div class="panel">
+    <h2>My squad projection</h2>
+    <p style="color: var(--muted); font-size: 13px;">xPts projection for your starting XI vs the Optimum XI baseline.</p>
+    <div id="mySquadProjection"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-news">
+  <div class="panel">
+    <h2>Squad news (2 June 2026)</h2>
+    <p style="color: var(--muted); font-size: 13px;">All 48 squads officially confirmed by FIFA today. Below are the injury and fitness updates that affect fantasy picks. Replacements only allowed for serious injury or illness up to 24 hours before that team's first match.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Players in your squad: fitness watch</h2>
+    <div id="myFitnessWatch"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Confirmed out (do not pick)</h2>
+    <table>
+      <thead><tr><th>Player</th><th>Team</th><th>Issue</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Rodrygo</strong></td><td>Brazil</td><td>Torn ACL and meniscus, out for tournament</td></tr>
+        <tr><td><strong>Kaoru Mitoma</strong></td><td>Japan</td><td>Injury, ruled out of squad</td></tr>
+        <tr><td><strong>Hugo Ekitike</strong></td><td>France</td><td>Achilles, out</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Fitness doubts (use with caution)</h2>
+    <table>
+      <thead><tr><th>Player</th><th>Team</th><th>Status</th><th>Fantasy impact</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Lamine Yamal</strong></td><td>Spain</td><td>Hamstring, no game since 22 April. Coach says fit for R1</td><td style="color: var(--amber);">High risk as captain. 60min cap possible.</td></tr>
+        <tr><td><strong>Jamal Musiala</strong></td><td>Germany</td><td>Returning from broken leg/dislocated ankle. Mostly bench at Bayern</td><td style="color: var(--amber);">Starter likely but minutes managed</td></tr>
+        <tr><td><strong>Lionel Messi</strong></td><td>Argentina</td><td>Hamstring fatigue from 25 May. 2 warm-up games to test</td><td style="color: var(--green);">Expect to start. Watch warm-ups 6 and 9 June</td></tr>
+        <tr><td><strong>Kevin De Bruyne</strong></td><td>Belgium</td><td>Ongoing injury concerns, named in squad</td><td style="color: var(--amber);">Risk for cap minutes</td></tr>
+        <tr><td><strong>Cristian Romero</strong></td><td>Argentina</td><td>MCL tear, doubt for group stage</td><td style="color: var(--red);">Avoid for R1</td></tr>
+        <tr><td><strong>Achraf Hakimi</strong></td><td>Morocco</td><td>Thigh injury</td><td style="color: var(--amber);">Watch updates</td></tr>
+        <tr><td><strong>Alphonso Davies</strong></td><td>Canada</td><td>Hamstring</td><td style="color: var(--amber);">Likely miss R1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Recommended captain pivot</h2>
+    <p>With Yamal not 100% match fit, switching R1 captain to <strong>Bruno Fernandes</strong> is the lower-risk play.</p>
+    <ul>
+      <li><strong>Bruno Fernandes</strong> (Portugal v DR Congo): fully fit, on pens, six goal involvements in last 3 games. Gap 41 still a comfortable Portugal win.</li>
+      <li><strong>Yamal</strong> stays in starting XI as a non-captain. Still scores well even at 60 minutes.</li>
+      <li>Vice captain stays as Messi for R3 plan.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>What this means for chips</h2>
+    <ul>
+      <li><strong>Wildcard R3 still strong</strong>. Belgium and Morocco fixtures unchanged. Just avoid Rodrygo (out) when rebuilding the wildcard team. Use Vinicius Jr or Raphinha instead for Brazil exposure.</li>
+      <li><strong>12th Man R2 on Vinicius Jr</strong> still recommended. With Rodrygo out, Vini is even more central to Brazil's attack.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-optimum">
+  <div class="panel">
+    <h2>Optimum group stage squad</h2>
+    <p style="color: var(--muted); font-size: 13px;">Based on FIFA fantasy prices, group fixtures and ranking gaps. Built to dominate rounds 1 and 2, with Wildcard saved for round 3 rotation.</p>
+    
+    <div class="summary-grid">
+      <div class="summary-card"><div class="label">Squad cost</div><div class="value">$96.6m</div></div>
+      <div class="summary-card"><div class="label">Bank</div><div class="value">$3.4m</div></div>
+      <div class="summary-card"><div class="label">Formation R1</div><div class="value">3-4-3</div></div>
+      <div class="summary-card"><div class="label">Spain players</div><div class="value">3 (max)</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Starting XI (3-4-3 for R1)</h2>
+    <table>
+      <thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Price</th><th>R1 opponent</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td>GK</td><td><strong>Kobel</strong></td><td>Switzerland</td><td>$4.0m</td><td>Qatar (gap 36)</td><td>Cheap, settled defence, three winnable fixtures</td></tr>
+        <tr><td>DEF</td><td><strong>Laporte</strong></td><td>Spain</td><td>$5.5m</td><td>Cabo Verde (67)</td><td>Anchor of best defence, clean sheet near-lock R1+R2</td></tr>
+        <tr><td>DEF</td><td><strong>Kimmich</strong></td><td>Germany</td><td>$5.5m</td><td>Curacao (72)</td><td>Set pieces, inverts to midfield, attacking returns possible</td></tr>
+        <tr><td>DEF</td><td><strong>Akanji</strong></td><td>Switzerland</td><td>$5.0m</td><td>Qatar (36)</td><td>Pairs with Kobel for double Swiss clean sheet</td></tr>
+        <tr><td>MID</td><td><strong>Lamine Yamal</strong></td><td>Spain</td><td>$10.0m</td><td>Cabo Verde (67)</td><td>Set pieces, highest ceiling, two huge fixtures</td></tr>
+        <tr><td>MID</td><td><strong>Bruno Fernandes</strong></td><td>Portugal</td><td>$8.5m</td><td>DR Congo (41)</td><td>Pens, free kicks, corners. Six Portugal goal involvements last 3 games</td></tr>
+        <tr><td>MID</td><td><strong>Musiala</strong></td><td>Germany</td><td>$8.0m</td><td>Curacao (72)</td><td>Likely captain backup, faces lowest-ranked R1 opponent</td></tr>
+        <tr><td>MID</td><td><strong>De Bruyne</strong></td><td>Belgium</td><td>$7.5m</td><td>Egypt</td><td>Belgium pens when Lukaku off, easiest group route to R3</td></tr>
+        <tr><td>FWD</td><td><strong>Harry Kane</strong></td><td>England</td><td>$10.5m</td><td>Croatia</td><td>61 goals club season, England pens, R2 gold v Ghana</td></tr>
+        <tr><td>FWD</td><td><strong>Oyarzabal (C)</strong></td><td>Spain</td><td>$8.1m</td><td>Cabo Verde (67)</td><td>CAPTAIN. Spain pens, gap 67, consensus top R1 pick</td></tr>
+        <tr><td>FWD</td><td><strong>Trossard</strong></td><td>Belgium</td><td>$6.6m</td><td>Egypt</td><td>Value pick, started qualifiers, Lukaku fitness doubt cover</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Bench (priority order)</h2>
+    <table>
+      <thead><tr><th>Priority</th><th>Player</th><th>Team</th><th>Price</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Mojica</strong></td><td>Colombia</td><td>$3.9m</td><td>DEF cover, Colombia favoured R1 v DR Congo</td></tr>
+        <tr><td>2</td><td><strong>McTominay</strong></td><td>Scotland</td><td>$5.5m</td><td>MID cover, Scotland v Haiti R1</td></tr>
+        <tr><td>3</td><td><strong>Wesley</strong></td><td>Brazil</td><td>$4.5m</td><td>DEF cover, Brazil clean sheet bet R2 v Haiti</td></tr>
+        <tr><td>GK</td><td><strong>Rangel</strong></td><td>Mexico</td><td>$3.5m</td><td>Backup GK, swap for Kobel if Switzerland fixture turns</td></tr>
+      </tbody>
+    </table>
+    <p style="color: var(--muted); font-size: 13px; margin-top: 8px;"><strong>Captain:</strong> Oyarzabal. <strong>Vice Captain:</strong> Bruno Fernandes.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Why this team works</h2>
+    <h3>Spine logic</h3>
+    <ul>
+      <li><strong>Spain x3</strong> (max): Two huge R1+R2 mismatches (Cabo Verde, Saudi Arabia). Yamal, Laporte, Oyarzabal cover attack and defence in one nation.</li>
+      <li><strong>Germany x2</strong>: R1 v Curacao is the biggest gap of round 1 (72). Kimmich and Musiala cover both ends.</li>
+      <li><strong>Belgium x2</strong>: Easiest overall group on paper (Egypt, Iran, New Zealand). De Bruyne is creative engine, Trossard the differential.</li>
+      <li><strong>Switzerland x2</strong>: Cheap Group B clean sheet stack. Qatar (R1) and Bosnia (R2) both winnable.</li>
+    </ul>
+    
+    <h3>Round by round projection</h3>
+    <ul>
+      <li><strong>Round 1:</strong> Spain (Yamal, Oyarzabal, Laporte) and Germany (Kimmich, Musiala) feast on Cabo Verde and Curacao. Captain Oyarzabal for pens.</li>
+      <li><strong>Round 2:</strong> Spain still strong v Saudi Arabia, Portugal v Uzbekistan, England v Ghana (Kane). Switch captain to Kane.</li>
+      <li><strong>Round 3:</strong> Activate Wildcard to load up on Belgium v New Zealand (gap 76), Morocco v Haiti (75), Croatia v Ghana (63). All-new attack focus.</li>
+    </ul>
+
+    <h3>Honourable mentions not in the squad</h3>
+    <p>Considered but cut for budget or balance: Vinicius Jr ($10m, third Brazil slot would force a $4m midfielder), Mbappe ($10.5m, France have tougher group), Haaland ($10.5m, Norway face Senegal R3), Ronaldo ($10m, age and rotation risk), Pedri ($8.1m, would break Spain max).</p>
+  </div>
+
+  <div class="panel">
+    <h2>Booster strategy summary</h2>
+    <table>
+      <thead><tr><th>Round</th><th>Booster</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr><td>R1</td><td><strong>HOLD</strong></td><td>No chips. Let the squad cook.</td></tr>
+        <tr><td>R2</td><td><strong>12th Man</strong></td><td>Vinicius Jr (Brazil v Haiti gap 77). Free extra player, biggest gap of R2.</td></tr>
+        <tr><td>R3</td><td><strong>Wildcard</strong></td><td>Rebuild fully around Belgium v NZ, Morocco v Haiti, Croatia v Ghana.</td></tr>
+        <tr><td>R32</td><td><strong>HOLD</strong></td><td>Unlimited transfers anyway. Save Max Captain and Qualification Booster.</td></tr>
+        <tr><td>R16</td><td><strong>Max Captain</strong></td><td>Best XI scorer auto-captained. Use when 2-3 strong captain options.</td></tr>
+        <tr><td>QF or SF</td><td><strong>Qualification Booster</strong></td><td>When your XI is 8+ likely progressors.</td></tr>
+        <tr><td>TBD</td><td><strong>Mystery Booster</strong></td><td>Hold until rules revealed before R32.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Transfer plan for group stages</h2>
+    <h3>Before R2 (2 free transfers)</h3>
+    <ul>
+      <li><strong>OUT:</strong> Worst R1 performer (likely McTominay if Scotland loses to Haiti, or a Swiss player if Kobel concedes 3)</li>
+      <li><strong>OUT:</strong> One Group D/E player whose R2 fixture is tougher</li>
+      <li><strong>IN:</strong> A Brazil mid or fwd (Vinicius or Rodrygo) for R2 v Haiti</li>
+      <li><strong>IN:</strong> An England attacker (Saka, Foden) for R2 v Ghana, or hold for Kane</li>
+    </ul>
+    <h3>Before R3 (WILDCARD)</h3>
+    <ul>
+      <li>Unlimited changes. Build around the R3 heavy mismatches.</li>
+      <li><strong>Must-haves:</strong> Belgium attack (De Bruyne, Doku, Trossard, Lukaku), Morocco attack (Ziyech, En-Nesyri)</li>
+      <li><strong>Drop:</strong> Anyone facing a tough R3 fixture (Spain v Uruguay, England v Panama)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-projection">
+  <div class="panel">
+    <h2>Points projection</h2>
+    <p style="color: var(--muted); font-size: 13px;">Expected points (xPts) for the Optimum XI by round, based on fixture difficulty and player tier. Track your actual results below to see variance against par.</p>
+    <div class="summary-grid" id="projectionSummary"></div>
+    <p style="color: var(--amber); font-size: 12px; margin-top: 12px;"><strong>Note:</strong> R3 projection uses the same XI as R1 and R2. Activating the Wildcard in R3 (recommended) should lift R3 xPts by 15-25 points by swapping in Belgium and Morocco attackers facing huge mismatches.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Round-by-round breakdown</h2>
+    <p style="color: var(--muted); font-size: 13px;">Each player's xPts is based on their fixture ranking gap, position and price tier. Captain doubles. Tap each round to expand.</p>
+    <div id="projectionRounds"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Par scores by round</h2>
+    <p style="color: var(--muted); font-size: 13px;">Estimated thresholds based on FIFA fantasy distributions. Use these to gauge how your round is going.</p>
+    <table>
+      <thead><tr><th>Round</th><th>Average</th><th>Top 100k</th><th>Top 10k</th><th>Top 1k</th></tr></thead>
+      <tbody>
+        <tr><td>Round 1</td><td>52</td><td>62</td><td>72</td><td>85</td></tr>
+        <tr><td>Round 2</td><td>50</td><td>60</td><td>70</td><td>82</td></tr>
+        <tr><td>Round 3</td><td>54</td><td>64</td><td>74</td><td>88</td></tr>
+        <tr><td>Group stage total</td><td>156</td><td>186</td><td>216</td><td>255</td></tr>
+      </tbody>
+    </table>
+    <p style="color: var(--amber); font-size: 12px;">Estimates based on Qatar 2022 group stage distributions adjusted for new 48-team format. Refine as the tournament progresses.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Track actual vs projected</h2>
+    <p style="color: var(--muted); font-size: 13px;">Log your actual round score and global rank to see how you compared to par.</p>
+    <div id="actualTracker"></div>
+  </div>
+
+  <div class="panel">
+    <h2>How the model works</h2>
+    <details>
+      <summary>Assumptions and methodology</summary>
+      <div>
+        <h3>Base expected points by position and fixture tier</h3>
+        <table>
+          <thead><tr><th>Position</th><th>Tier 1 (60+)</th><th>Tier 2 (40-59)</th><th>Tier 3 (20-39)</th><th>Tier 4 (under 20)</th></tr></thead>
+          <tbody>
+            <tr><td>Premium FWD/MID ($8m+)</td><td>9.0</td><td>7.5</td><td>5.5</td><td>4.0</td></tr>
+            <tr><td>Mid FWD/MID ($6-8m)</td><td>7.0</td><td>5.5</td><td>4.5</td><td>3.5</td></tr>
+            <tr><td>Budget MID ($4-6m)</td><td>5.0</td><td>4.0</td><td>3.5</td><td>3.0</td></tr>
+            <tr><td>Premium DEF ($5m+)</td><td>7.0</td><td>5.5</td><td>4.0</td><td>3.0</td></tr>
+            <tr><td>Budget DEF (under $5m)</td><td>5.5</td><td>4.5</td><td>3.5</td><td>2.5</td></tr>
+            <tr><td>GK</td><td>6.5</td><td>5.5</td><td>4.0</td><td>3.0</td></tr>
+          </tbody>
+        </table>
+        <p style="color: var(--muted); font-size: 12px; margin-top: 10px;">Captain doubles base xPts. Numbers reflect goal involvement probability scaled by ranking gap, plus clean sheet odds for defensive positions. The model is intentionally conservative. Standout performances (hat tricks, 10 plus point hauls) sit outside the median.</p>
+        
+        <h3>What the model does not capture</h3>
+        <ul>
+          <li>Injuries and rotation</li>
+          <li>Red cards or penalty misses</li>
+          <li>Hat tricks or 3 goal hauls (these pull the average up but are not predictable)</li>
+          <li>Scouting bonus (under 5% ownership scoring 4+) and direct free kick bonus</li>
+          <li>Live form going into the tournament</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-rules">
+  <div class="panel">
+    <h2>FIFA World Cup 2026 Fantasy rules</h2>
+    <p style="color: var(--muted); font-size: 13px;">Quick reference. Deadline for round 1: 20:00 UK time, Thursday 11 June 2026.</p>
+
+    <h3>Squad</h3>
+    <ul>
+      <li>15 players: 2 GK, 5 DEF, 5 MID, 3 FWD</li>
+      <li>Budget $100m group stage, rising to $105m from Round of 32 onwards</li>
+      <li>Player prices stay fixed all tournament, no price changes</li>
+    </ul>
+
+    <h3>Formations</h3>
+    <p>4-4-2, 4-3-3, 4-5-1, 3-4-3, 3-5-2, 5-4-1, 5-3-2</p>
+
+    <h3>Per nation limits</h3>
+    <table>
+      <thead><tr><th>Stage</th><th>Max per nation</th></tr></thead>
+      <tbody>
+        <tr><td>Group stage</td><td>3</td></tr>
+        <tr><td>Round of 32</td><td>3</td></tr>
+        <tr><td>Round of 16</td><td>4</td></tr>
+        <tr><td>Quarter-finals</td><td>5</td></tr>
+        <tr><td>Semi-finals</td><td>6</td></tr>
+        <tr><td>Final</td><td>8</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Free transfers per round</h3>
+    <table>
+      <thead><tr><th>Stage</th><th>Transfers</th></tr></thead>
+      <tbody>
+        <tr><td>Pre-tournament</td><td>Unlimited</td></tr>
+        <tr><td>Before R2</td><td>2</td></tr>
+        <tr><td>Before R3</td><td>2 (1 rollover max)</td></tr>
+        <tr><td>Before R32</td><td>Unlimited</td></tr>
+        <tr><td>Before R16</td><td>4</td></tr>
+        <tr><td>Before QF</td><td>4</td></tr>
+        <tr><td>Before SF</td><td>5</td></tr>
+        <tr><td>Before Final</td><td>6</td></tr>
+      </tbody>
+    </table>
+    <p style="color: var(--amber); font-size: 13px;">Extra transfers cost minus 3 points each. Only 1 transfer can roll over to the next round, and only in the group stage.</p>
+
+    <h3>Captain</h3>
+    <ul>
+      <li>Captain scores double points</li>
+      <li>Vice captain takes the armband only if your captain plays zero minutes and you have not changed the team during the round</li>
+      <li>You can change captain manually until that player's match starts</li>
+    </ul>
+
+    <h3>Scoring highlights</h3>
+    <ul>
+      <li>Each position gets 1 more point per goal vs FPL</li>
+      <li>Clean sheet 5 points for GK and DEF (60 mins minimum)</li>
+      <li>Mid +1 per 3 tackles or per 2 chances created</li>
+      <li>Forwards +1 per 2 shots on target</li>
+      <li>No defensive contribution rewards (no DefCon)</li>
+      <li>Penalty involvement penalises miss or save regardless of outcome</li>
+      <li>Bonus: 1 extra point for direct free-kick goal</li>
+      <li>Differential bonus: 2 points if scoring 4+ and owned by under 5% of teams</li>
+    </ul>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-fdr"></section>
+<section class="tab-content" id="tab-form"></section>
+<section class="tab-content" id="tab-round1"></section>
+<section class="tab-content" id="tab-round2"></section>
+<section class="tab-content" id="tab-round3"></section>
+
+<section class="tab-content" id="tab-boosters">
+  <div class="panel">
+    <h2>Booster planner</h2>
+    <p style="color: var(--muted); font-size: 13px;">5 boosters across 8 rounds, only one per round. Track your plan and tick off when used.</p>
+    <div id="boosterPlanner"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Recommended booster plan</h2>
+    <details open>
+      <summary>The strategy in one line</summary>
+      <div>
+        <p>Save chips for moments when value is highest. Round 2 or 3 in groups, plus the knockouts. Avoid burning chips in round 1 unless you spot a clear edge.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Round 1: hold all chips</summary>
+      <div>
+        <p>Use your unlimited pre-tournament transfers to nail your squad. Save Max Captain and 12th Man for later when fixtures sharpen.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Round 2: 12th Man on a Brazil player</summary>
+      <div>
+        <p>Brazil v Haiti (gap 77) is the biggest mismatch of round 2. 12th Man lets Vinicius Jr count without taking a squad slot or budget. Strong shout if your squad lacks Brazilian flair.</p>
+        <p>Alternative: 12th Man on Harry Kane for England v Ghana (gap 70) if you already have Brazil exposure.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Round 3: Wildcard for full rebuild</summary>
+      <div>
+        <p>Round 3 is when fixtures rotate hardest. Many round 1 and 2 favourites face their toughest game, and the heaviest gaps shift to Belgium v New Zealand (76), Morocco v Haiti (75), Croatia v Ghana (63), Argentina v Jordan (60).</p>
+        <p>Wildcard here lets you reload around these fixtures without taking transfer hits.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Round of 32: hold</summary>
+      <div>
+        <p>Unlimited free transfers anyway. No need for chips. Save Qualification Booster for a round where most of your XI will progress.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Round of 16: Max Captain on a top scorer</summary>
+      <div>
+        <p>By R16 the elite teams face stronger opposition. Max Captain guarantees your highest scorer gets the armband. Use when you have multiple strong captain options and cannot decide.</p>
+      </div>
+    </details>
+    <details>
+      <summary>QF or SF: Qualification Booster</summary>
+      <div>
+        <p>Use when your XI is loaded with players from teams you expect to progress. Each progressor gives +2 points. Strongest when you have 8+ likely progressors in your starting XI.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Mystery Booster: reactive</summary>
+      <div>
+        <p>Revealed before R32. Hold and decide based on what it does.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-transfers">
+  <div class="panel">
+    <h2>Transfer planner</h2>
+    <p style="color: var(--muted); font-size: 13px;">Only 2 free transfers between rounds in the group stage. Plan carefully. Log who you want to bring in, who goes out, and the rationale.</p>
+    <div id="transferPlanner"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Suggested round 2 transfers</h2>
+    <p style="color: var(--muted); font-size: 13px;">Based on round 2 mismatches. Use these as starting points and adjust based on round 1 returns.</p>
+    <h3>Priority targets in</h3>
+    <ul>
+      <li><strong>Vinicius Jr</strong> or <strong>Rodrygo</strong> (Brazil v Haiti, gap 77)</li>
+      <li><strong>Harry Kane</strong> or <strong>Bukayo Saka</strong> (England v Ghana, gap 70)</li>
+      <li><strong>Mbappe</strong> or <strong>Dembele</strong> (France v Iraq, gap 56)</li>
+      <li><strong>Pickford</strong> or English defender (England v Ghana clean sheet)</li>
+    </ul>
+    <h3>Likely transfers out</h3>
+    <ul>
+      <li>Round 1 underperformers who face a tougher round 2 fixture</li>
+      <li>Players whose round 2 opponent is much stronger than round 1</li>
+      <li>Specifically: Mexican players if Mexico struggled v South Africa, Iran v New Zealand returns dependent</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>Suggested round 3 transfers (Wildcard round)</h2>
+    <p style="color: var(--muted); font-size: 13px;">With Wildcard activated you can rebuild fully. Target these fixtures:</p>
+    <ul>
+      <li><strong>Belgium attack</strong> v New Zealand (gap 76): De Bruyne, Doku, Lukaku, Trossard</li>
+      <li><strong>Morocco attack</strong> v Haiti (gap 75): Ziyech, En-Nesyri, Brahim Diaz</li>
+      <li><strong>Croatia attack</strong> v Ghana (gap 63): Modric, Kramaric, Sosa</li>
+      <li><strong>Argentina attack</strong> v Jordan (gap 60): Messi, Alvarez, Lautaro</li>
+      <li>Plus clean sheet stacks: Belgium and Morocco GK + DEF</li>
+    </ul>
+    <p style="color: var(--amber); font-size: 13px;">Note: per-nation max stays at 3 in group stage. You cannot stack more than 3 Belgians.</p>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-captains">
+  <div class="panel">
+    <h2>Captain log</h2>
+    <p style="color: var(--muted); font-size: 13px;">Track who you captained each matchday, points scored and your reasoning. Useful for reviewing later and learning what worked.</p>
+    <div id="captainLog"></div>
+    <div class="controls" style="margin-top: 14px;">
+      <button class="btn" id="exportJson">Export to JSON</button>
+      <button class="btn" id="importJson">Import from JSON</button>
+      <button class="btn btn-danger" id="resetAll">Reset all data</button>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="tab-strategy">
+  <div class="panel">
+    <h2>Captain rotation plan</h2>
+    <details open>
+      <summary>Round 1 captain options</summary>
+      <div>
+        <p><strong>Top pick:</strong> Lamine Yamal (Spain v Cabo Verde, gap 67) or Florian Wirtz (Germany v Curacao, gap 72). Both heavy mismatch favourites.</p>
+        <p><strong>Alternatives:</strong> Cristiano Ronaldo (Portugal v DR Congo, gap 41), Lionel Messi (Argentina v Algeria, gap 26).</p>
+        <p><strong>Avoid captaining:</strong> Anyone in France v Senegal, Brazil v Morocco or England v Croatia. Too tight.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Round 2 captain options</summary>
+      <div>
+        <p><strong>Top pick:</strong> Vinicius Junior or Rodrygo (Brazil v Haiti, gap 77). Biggest mismatch of round 2.</p>
+        <p><strong>Alternatives:</strong> Harry Kane (England v Ghana, gap 70), Cristiano Ronaldo (Portugal v Uzbekistan, gap 45).</p>
+      </div>
+    </details>
+    <details>
+      <summary>Round 3 captain options</summary>
+      <div>
+        <p><strong>Top picks:</strong> Kevin De Bruyne or Jeremy Doku (Belgium v New Zealand, gap 76), Hakim Ziyech or En-Nesyri (Morocco v Haiti, gap 75).</p>
+        <p><strong>Alternatives:</strong> Luka Modric or Andrej Kramaric (Croatia v Ghana, gap 63), Lionel Messi (Argentina v Jordan, gap 60).</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="panel">
+    <h2>Defence stacking plan</h2>
+    <p style="color: var(--muted); font-size: 13px;">Pick goalkeepers and defenders from teams facing the biggest ranking gap underdogs. Clean sheets pay 5 points to GK and DEF if 60+ minutes played.</p>
+    <div id="defenceStackPlan"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Squad spine recommendation</h2>
+    <p style="color: var(--muted); font-size: 13px;">Teams with the most lopsided fixtures across the group stage. Per-nation max is 3, so pick 2-3 players from these nations.</p>
+    <div id="spineRecommendation"></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Single-file build, data saved in your browser. Fixtures from FIFA official schedule. Rankings from FIFA, 1 April 2026 update.
+</footer>
+
+<script>
+// ============================================================
+// FIFA rankings as of 1 April 2026
+// ============================================================
+const RANKINGS = {
+  "France": 1, "Spain": 2, "Argentina": 3, "England": 4, "Portugal": 5,
+  "Brazil": 6, "Netherlands": 7, "Morocco": 8, "Belgium": 9, "Germany": 10,
+  "Croatia": 11, "Italy": 12, "Colombia": 13, "Senegal": 14, "Mexico": 15,
+  "United States": 16, "Uruguay": 17, "Japan": 18, "Switzerland": 19, "Denmark": 20,
+  "Iran": 21, "South Korea": 22, "Austria": 23, "Australia": 24, "Ukraine": 25,
+  "Ecuador": 26, "Norway": 27, "Egypt": 28, "Algeria": 29, "Canada": 30,
+  "Turkey": 31, "Türkiye": 31, "Panama": 33, "Ivory Coast": 34, "Wales": 37, "Sweden": 38,
+  "Paraguay": 40, "Czechia": 41, "Scotland": 43, "Tunisia": 44, "DR Congo": 46,
+  "Uzbekistan": 50, "Qatar": 55, "Iraq": 57, "South Africa": 60, "Saudi Arabia": 61,
+  "Jordan": 63, "Bosnia and Herzegovina": 65, "Cabo Verde": 69, "Ghana": 74,
+  "Curacao": 82, "Haiti": 83, "New Zealand": 85,
+  "USA": 16  // alias for fixture data
+};
+
+// ============================================================
+// Fixture Difficulty Rating (FDR)
+// 1 = very easy opponent (minnow), 5 = very hard (elite top-8)
+// Derived from FIFA April 2026 rankings:
+//   FDR 5: ranks 1-8 · FDR 4: 9-18 · FDR 3: 19-30 · FDR 2: 31-45 · FDR 1: 46+
+// Keys match the exact strings used in FIXTURES.home / FIXTURES.away.
+// ============================================================
+const TEAM_FDR = {
+  // FDR 5 — elite (top 8)
+  "France": 5, "Spain": 5, "Argentina": 5, "England": 5, "Portugal": 5,
+  "Brazil": 5, "Netherlands": 5, "Morocco": 5,
+  // FDR 4 — strong (9-18)
+  "Belgium": 4, "Germany": 4, "Croatia": 4, "Colombia": 4, "Senegal": 4,
+  "Mexico": 4, "USA": 4, "United States": 4, "Uruguay": 4, "Japan": 4,
+  // FDR 3 — medium (19-30)
+  "Switzerland": 3, "Iran": 3, "Türkiye": 3, "Turkey": 3, "Ecuador": 3,
+  "Austria": 3, "South Korea": 3, "Australia": 3, "Algeria": 3, "Egypt": 3, "Canada": 3,
+  // FDR 2 — weaker (31-45)
+  "Norway": 2, "Panama": 2, "Ivory Coast": 2, "Sweden": 2, "Paraguay": 2,
+  "Czechia": 2, "Scotland": 2, "Tunisia": 2, "Ghana": 2,
+  // FDR 1 — playoff winners / minnows (46+)
+  "DR Congo": 1, "Uzbekistan": 1, "Saudi Arabia": 1, "Qatar": 1,
+  "South Africa": 1, "Bosnia and Herzegovina": 1, "Cabo Verde": 1,
+  "Jordan": 1, "New Zealand": 1, "Iraq": 1, "Curacao": 1, "Curaçao": 1, "Haiti": 1
+};
+function teamFDR(name) { return TEAM_FDR[name] || 3; }
+function fdrClass(n)   { return `fdr fdr-${Math.max(1, Math.min(5, n))}`; }
+function fdrColor(n)   { return ["#20c997","#88e15a","#facc15","#fb7185","#e11d48"][n - 1] || "#94a3b8"; }
+
+// ============================================================
+// ScoutingStats data (baked in from bamfs1976-art/wcstats):
+//   TEAM_FORM       : per-team rates (cards, fouls, goals, clean sheets, etc.)
+//   DISCIPLINE_RISK : top 3 booking-risk players per team (intl form 2026)
+// ============================================================
+const TEAM_FORM = {
+  'Czechia': { ca:2.2, fm:15.3, cf:1.8, fw:11.0, ga:1.15, gf:1.9, o25:60, btts:60, cs:8, sh:14.3, sot:5.2, gpg:3.05, games:20, tier:'target', combustible:true },
+  'South Korea': { ca:1.7, fm:11.4, cf:1.2, fw:10.7, ga:0.86, gf:1.95, o25:41, btts:32, cs:12, sh:11.7, sot:4.5, gpg:2.82, games:22, tier:'mid', combustible:false },
+  'South Africa': { ca:1.6, fm:12.2, cf:1.7, fw:12.2, ga:0.76, gf:1.88, o25:52, btts:52, cs:11, sh:15.1, sot:5.5, gpg:2.64, games:25, tier:'mid', combustible:false },
+  'Mexico': { ca:1.9, fm:13.3, cf:2.1, fw:12.4, ga:0.94, gf:1.38, o25:38, btts:38, cs:9, sh:11.4, sot:4.1, gpg:2.31, games:16, tier:'mid', combustible:false },
+  'Bosnia and Herzegovina': { ca:1.9, fm:15.4, cf:2.5, fw:12.9, ga:1.53, gf:1.47, o25:53, btts:63, cs:5, sh:12.6, sot:4.2, gpg:3.0, games:19, tier:'mid', combustible:false },
+  'Switzerland': { ca:1.9, fm:10.9, cf:1.6, fw:11.5, ga:1.32, gf:2.05, o25:58, btts:58, cs:6, sh:11.9, sot:4.8, gpg:3.37, games:19, tier:'mid', combustible:false },
+  'Qatar': { ca:2.2, fm:10.7, cf:1.6, fw:12.9, ga:1.9, gf:1.24, o25:71, btts:62, cs:3, sh:8.9, sot:3.1, gpg:3.14, games:21, tier:'target', combustible:false },
+  'Canada': { ca:2.2, fm:14.0, cf:2.9, fw:14.7, ga:0.42, gf:1.25, o25:25, btts:17, cs:9, sh:11.2, sot:4.3, gpg:1.67, games:12, tier:'target', combustible:true },
+  'Brazil': { ca:2.3, fm:11.7, cf:1.7, fw:13.8, ga:1.0, gf:1.89, o25:53, btts:53, cs:7, sh:13.5, sot:4.8, gpg:2.89, games:19, tier:'target', combustible:false },
+  'Morocco': { ca:2.7, fm:13.6, cf:1.1, fw:16.3, ga:0.25, gf:2.71, o25:50, btts:25, cs:21, sh:16.1, sot:6.0, gpg:2.96, games:28, tier:'target', combustible:true },
+  'Haiti': { ca:1.4, fm:12.7, cf:1.5, fw:11.5, ga:1.07, gf:2.0, o25:64, btts:36, cs:7, sh:13.1, sot:5.3, gpg:3.07, games:14, tier:'fade', combustible:false },
+  'Scotland': { ca:2.6, fm:11.2, cf:1.5, fw:13.2, ga:1.26, gf:1.58, o25:63, btts:53, cs:6, sh:11.4, sot:4.5, gpg:2.84, games:19, tier:'target', combustible:false },
+  'Türkiye': { ca:1.9, fm:10.5, cf:2.5, fw:11.6, ga:1.11, gf:2.11, o25:63, btts:47, cs:8, sh:16.2, sot:5.2, gpg:3.21, games:19, tier:'mid', combustible:false },
+  'USA': { ca:1.4, fm:12.3, cf:1.8, fw:9.7, ga:1.69, gf:1.85, o25:69, btts:62, cs:2, sh:12.5, sot:5.2, gpg:3.54, games:13, tier:'fade', combustible:false },
+  'Paraguay': { ca:1.8, fm:12.6, cf:2.1, fw:10.9, ga:0.89, gf:1.11, o25:44, btts:44, cs:8, sh:9.9, sot:3.8, gpg:2.0, games:18, tier:'mid', combustible:false },
+  'Australia': { ca:1.3, fm:9.7, cf:1.1, fw:11.1, ga:0.76, gf:1.67, o25:43, btts:38, cs:9, sh:8.0, sot:3.2, gpg:2.43, games:21, tier:'fade', combustible:false },
+  'Germany': { ca:2.0, fm:11.1, cf:1.6, fw:9.9, ga:1.0, gf:2.63, o25:68, btts:47, cs:8, sh:17.8, sot:6.7, gpg:3.63, games:19, tier:'target', combustible:false },
+  'Curacao': { ca:2.2, fm:10.7, cf:1.5, fw:12.7, ga:1.29, gf:2.14, o25:50, btts:43, cs:6, sh:13.5, sot:5.7, gpg:3.43, games:14, tier:'target', combustible:false },
+  'Ivory Coast': { ca:1.4, fm:11.2, cf:1.0, fw:9.2, ga:0.46, gf:1.73, o25:35, btts:19, cs:17, sh:11.8, sot:4.3, gpg:2.19, games:26, tier:'fade', combustible:false },
+  'Ecuador': { ca:1.8, fm:13.6, cf:1.6, fw:10.6, ga:0.37, gf:0.89, o25:16, btts:32, cs:12, sh:11.1, sot:4.1, gpg:1.26, games:19, tier:'mid', combustible:false },
+  'Sweden': { ca:2.6, fm:13.6, cf:1.8, fw:11.4, ga:1.45, gf:2.15, o25:70, btts:60, cs:4, sh:15.2, sot:6.0, gpg:3.6, games:20, tier:'target', combustible:true },
+  'Netherlands': { ca:1.9, fm:9.6, cf:0.8, fw:12.8, ga:1.0, gf:2.53, o25:58, btts:58, cs:6, sh:15.5, sot:5.6, gpg:3.53, games:19, tier:'mid', combustible:false },
+  'Japan': { ca:0.9, fm:12.8, cf:0.9, fw:9.1, ga:0.43, gf:2.52, o25:48, btts:19, cs:15, sh:12.3, sot:4.8, gpg:2.95, games:21, tier:'fade', combustible:false },
+  'Tunisia': { ca:2.6, fm:12.8, cf:1.7, fw:11.7, ga:0.85, gf:1.41, o25:33, btts:37, cs:11, sh:9.9, sot:4.0, gpg:2.26, games:27, tier:'target', combustible:true },
+  'Belgium': { ca:2.7, fm:10.7, cf:1.6, fw:10.9, ga:1.16, gf:2.47, o25:58, btts:53, cs:6, sh:17.7, sot:6.5, gpg:3.63, games:19, tier:'target', combustible:false },
+  'Egypt': { ca:1.8, fm:11.4, cf:1.8, fw:11.0, ga:0.52, gf:1.52, o25:34, btts:31, cs:18, sh:9.4, sot:4.3, gpg:2.03, games:29, tier:'mid', combustible:false },
+  'Iran': { ca:1.7, fm:8.4, cf:1.5, fw:7.8, ga:0.79, gf:1.84, o25:53, btts:42, cs:10, sh:10.5, sot:4.6, gpg:2.63, games:19, tier:'mid', combustible:false },
+  'New Zealand': { ca:1.0, fm:7.5, cf:1.1, fw:7.4, ga:1.25, gf:2.38, o25:62, btts:38, cs:5, sh:10.1, sot:4.4, gpg:3.62, games:16, tier:'fade', combustible:false },
+  'Spain': { ca:2.4, fm:11.5, cf:1.5, fw:10.0, ga:0.95, gf:2.63, o25:74, btts:47, cs:10, sh:19.9, sot:7.8, gpg:3.58, games:19, tier:'target', combustible:false },
+  'Cabo Verde': { ca:2.2, fm:11.4, cf:1.8, fw:11.6, ga:1.05, gf:1.32, o25:36, btts:41, cs:9, sh:9.2, sot:3.4, gpg:2.36, games:22, tier:'target', combustible:false },
+  'Saudi Arabia': { ca:1.8, fm:8.7, cf:1.8, fw:11.8, ga:1.09, gf:1.0, o25:39, btts:43, cs:9, sh:10.1, sot:3.1, gpg:2.09, games:23, tier:'mid', combustible:false },
+  'Uruguay': { ca:1.9, fm:12.8, cf:2.2, fw:11.8, ga:0.78, gf:0.78, o25:22, btts:28, cs:10, sh:9.8, sot:2.6, gpg:1.56, games:18, tier:'mid', combustible:false },
+  'France': { ca:1.7, fm:10.7, cf:2.0, fw:11.9, ga:1.11, gf:2.21, o25:68, btts:58, cs:7, sh:17.8, sot:6.5, gpg:3.32, games:19, tier:'mid', combustible:false },
+  'Senegal': { ca:1.6, fm:11.3, cf:1.5, fw:10.5, ga:0.6, gf:2.03, o25:43, btts:37, cs:18, sh:12.4, sot:5.8, gpg:2.63, games:30, tier:'mid', combustible:false },
+  'Norway': { ca:1.1, fm:8.5, cf:0.9, fw:10.8, ga:0.84, gf:3.05, o25:74, btts:53, cs:9, sh:16.8, sot:6.1, gpg:3.89, games:19, tier:'fade', combustible:false },
+  'Iraq': { ca:3.1, fm:11.9, cf:2.1, fw:10.9, ga:0.79, gf:1.11, o25:32, btts:42, cs:9, sh:8.0, sot:2.9, gpg:1.89, games:19, tier:'target', combustible:false },
+  'Argentina': { ca:2.4, fm:11.2, cf:1.4, fw:12.8, ga:0.53, gf:2.29, o25:53, btts:35, cs:10, sh:12.2, sot:5.2, gpg:2.82, games:17, tier:'target', combustible:false },
+  'Algeria': { ca:2.1, fm:12.1, cf:1.7, fw:11.3, ga:0.63, gf:2.33, o25:56, btts:41, cs:15, sh:9.7, sot:5.0, gpg:2.96, games:27, tier:'target', combustible:false },
+  'Austria': { ca:1.9, fm:12.9, cf:1.7, fw:10.4, ga:0.68, gf:2.32, o25:42, btts:47, cs:8, sh:14.2, sot:6.1, gpg:3.0, games:19, tier:'mid', combustible:false },
+  'Jordan': { ca:1.4, fm:8.7, cf:1.5, fw:6.8, ga:1.17, gf:1.42, o25:50, btts:50, cs:8, sh:10.1, sot:4.2, gpg:2.58, games:24, tier:'fade', combustible:false },
+  'Portugal': { ca:2.0, fm:9.5, cf:1.8, fw:10.3, ga:1.0, gf:2.44, o25:61, btts:61, cs:5, sh:18.7, sot:6.2, gpg:3.44, games:18, tier:'target', combustible:false },
+  'Colombia': { ca:2.2, fm:13.4, cf:1.4, fw:12.7, ga:1.16, gf:1.89, o25:68, btts:58, cs:6, sh:13.7, sot:5.6, gpg:3.05, games:19, tier:'target', combustible:true },
+  'DR Congo': { ca:1.5, fm:14.1, cf:1.0, fw:11.4, ga:0.48, gf:1.36, o25:20, btts:28, cs:16, sh:9.0, sot:3.5, gpg:1.84, games:25, tier:'mid', combustible:false },
+  'Uzbekistan': { ca:1.4, fm:9.8, cf:1.4, fw:8.1, ga:0.65, gf:1.25, o25:35, btts:30, cs:13, sh:12.4, sot:4.2, gpg:1.9, games:20, tier:'fade', combustible:false },
+  'Croatia': { ca:1.3, fm:9.9, cf:1.8, fw:10.2, ga:1.05, gf:2.05, o25:58, btts:47, cs:7, sh:17.6, sot:6.5, gpg:3.11, games:19, tier:'fade', combustible:false },
+  'Ghana': { ca:1.5, fm:12.6, cf:1.6, fw:13.1, ga:1.19, gf:1.52, o25:43, btts:43, cs:7, sh:9.3, sot:3.8, gpg:2.71, games:21, tier:'mid', combustible:false },
+  'Panama': { ca:1.8, fm:11.7, cf:1.7, fw:10.9, ga:1.38, gf:1.69, o25:44, btts:56, cs:6, sh:12.1, sot:4.5, gpg:3.06, games:16, tier:'mid', combustible:false },
+  'England': { ca:1.9, fm:8.9, cf:1.2, fw:11.4, ga:0.44, gf:2.39, o25:50, btts:22, cs:13, sh:16.9, sot:6.6, gpg:2.83, games:18, tier:'mid', combustible:false },
+};
+
+const DISCIPLINE_RISK = {
+  'Algeria': [{n:'Anis Hadj Moussa',p:'FW',r:3.83,y:1.92,f:0.00},{n:'Rayan Aït-Nouri',p:'DF',r:2.00,y:1.00,f:0.00},{n:'Mohamed Amine Tougai',p:'DF',r:1.00,y:0.50,f:0.00}],
+  'Argentina': [{n:'Lautaro Martínez',p:'FW',r:2.81,y:0.24,f:2.32},{n:'Gonzalo Montiel',p:'DF',r:2.25,y:0.32,f:1.61},{n:'Enzo Fernández',p:'MF',r:1.90,y:0.14,f:1.62}],
+  'Australia': [{n:'Mohamed Touré',p:'FW',r:11.25,y:0.00,f:11.25},{n:'Jordan Bos',p:'DF',r:3.30,y:0.47,f:2.36},{n:'Nestory Irankunda',p:'FW',r:1.96,y:0.00,f:1.96}],
+  'Austria': [{n:'Florian Grillitsch',p:'MF',r:4.44,y:1.11,f:2.22},{n:'Patrick Wimmer',p:'FW',r:3.64,y:0.40,f:2.83},{n:'Alexander Prass',p:'MF',r:3.10,y:0.00,f:3.10}],
+  'Belgium': [{n:'Thomas Meunier',p:'DF',r:3.57,y:0.51,f:2.55},{n:'Nicolas Raskin',p:'MF',r:2.53,y:0.17,f:2.19},{n:'Amadou Onana',p:'MF',r:1.92,y:0.32,f:1.28}],
+  'Bosnia and Herzegovina': [{n:'Dennis Hadzikadunic',p:'DF',r:4.00,y:1.00,f:2.00},{n:'Ivan Sunjic',p:'MF',r:3.83,y:0.27,f:3.28},{n:'Nihad Mujakic',p:'DF',r:3.20,y:1.06,f:1.07}],
+  'Brazil': [{n:'Roger Ibañez',p:'DF',r:15.00,y:0.00,f:15.00},{n:'Lucas Paquetá',p:'MF',r:3.78,y:0.81,f:2.16},{n:'Matheus Cunha',p:'FW',r:3.75,y:0.38,f:3.00}],
+  'Cabo Verde': [{n:'Stopira',p:'DF',r:45.00,y:22.50,f:0.00},{n:'Telmo Arcanjo',p:'FW',r:2.05,y:1.02,f:0.00},{n:'Willy Semedo',p:'FW',r:1.18,y:0.59,f:0.00}],
+  'Colombia': [{n:'Andrés Gómez',p:'FW',r:10.00,y:0.00,f:10.00},{n:'Jorge Carrascal',p:'MF',r:4.44,y:0.40,f:3.63},{n:'Jhon Córdoba',p:'FW',r:3.32,y:0.52,f:2.27}],
+  'Croatia': [{n:'Igor Matanovic',p:'FW',r:6.00,y:0.00,f:6.00},{n:'Marin Pongracic',p:'DF',r:4.12,y:0.32,f:3.49},{n:'Petar Musa',p:'FW',r:2.57,y:0.00,f:2.57}],
+  'Curacao': [{n:'Godfried Roemeratoe',p:'MF',r:3.35,y:0.42,f:2.51},{n:'Juninho Bacuna',p:'MF',r:2.79,y:0.12,f:2.55},{n:'Gervane Kastaneer',p:'FW',r:2.76,y:0.39,f:1.97}],
+  'Czechia': [{n:'Jan Kuchta',p:'FW',r:11.25,y:0.00,f:11.25},{n:'Tomas Chory',p:'FW',r:3.36,y:0.21,f:2.94},{n:'Robin Hranac',p:'DF',r:2.92,y:0.24,f:2.43}],
+  'DR Congo': [{n:'Meschack Elia',p:'MF',r:1.04,y:0.52,f:0.00}],
+  'Ecuador': [{n:'Gonzalo Plata',p:'FW',r:2.95,y:0.28,f:2.39},{n:'Moisés Caicedo',p:'MF',r:2.57,y:0.26,f:2.06},{n:'Angelo Preciado',p:'DF',r:2.56,y:0.33,f:1.89}],
+  'Egypt': [{n:'Marwan Ateya',p:'MF',r:2.13,y:1.06,f:0.00}],
+  'England': [{n:'Ollie Watkins',p:'FW',r:6.43,y:0.00,f:6.43},{n:'Anthony Gordon',p:'FW',r:3.35,y:0.48,f:2.39},{n:'Jude Bellingham',p:'MF',r:2.27,y:0.51,f:1.26}],
+  'France': [{n:'Adrien Rabiot',p:'MF',r:3.46,y:0.86,f:1.73},{n:'Manu Koné',p:'MF',r:2.83,y:0.51,f:1.80},{n:'Marcus Thuram',p:'FW',r:2.57,y:0.00,f:2.57}],
+  'Germany': [{n:'Malick Thiaw',p:'DF',r:7.29,y:2.43,f:2.43},{n:'Pascal Groß',p:'MF',r:4.09,y:0.00,f:4.09},{n:'Nathaniel Brown',p:'DF',r:3.46,y:0.00,f:3.46}],
+  'Ghana': [{n:'Elisha Owusu',p:'MF',r:2.00,y:1.00,f:0.00}],
+  'Haiti': [{n:'Wilguens Paugain',p:'DF',r:4.09,y:0.00,f:4.09},{n:'Josué Casimir',p:'FW',r:3.35,y:0.00,f:3.35},{n:'Carlens Arcus',p:'DF',r:2.75,y:0.36,f:2.03}],
+  'Iran': [{n:'Ali Alipour',p:'FW',r:6.75,y:1.12,f:4.50},{n:'Mohammad Ghorbani',p:'MF',r:5.00,y:0.00,f:5.00},{n:'Amirhossein Hosseinzadeh',p:'FW',r:3.83,y:0.00,f:3.83}],
+  'Iraq': [{n:'Ali Yousif',p:'FW',r:7.20,y:0.00,f:7.20},{n:'Mustafa Saadoon',p:'DF',r:3.94,y:1.31,f:1.31},{n:'Kevin Yakob',p:'MF',r:3.91,y:0.00,f:3.91}],
+  'Ivory Coast': [{n:'Simon Adingra',p:'FW',r:1.00,y:0.50,f:0.00}],
+  'Japan': [{n:'Yukinari Sugawara',p:'DF',r:3.00,y:0.00,f:3.00},{n:'Ayumu Seko',p:'MF',r:2.58,y:0.29,f:2.01},{n:'Tsuyoshi Watanabe',p:'DF',r:2.57,y:0.00,f:2.57}],
+  'Jordan': [{n:'Rajaei Ayed',p:'MF',r:4.25,y:0.71,f:2.83},{n:'Ibrahim Saadeh',p:'MF',r:3.92,y:0.33,f:3.27},{n:'Amer Jamous',p:'MF',r:3.11,y:0.31,f:2.49}],
+  'Morocco': [{n:'Ayoub El Kaabi',p:'FW',r:2.11,y:0.00,f:2.11},{n:'Soufiane Rahimi',p:'FW',r:2.06,y:0.00,f:2.06},{n:'Sofyan Amrabat',p:'MF',r:2.04,y:0.17,f:1.70}],
+  'Netherlands': [{n:'Noa Lang',p:'FW',r:6.54,y:1.64,f:3.27},{n:'Jan Paul van Hecke',p:'DF',r:4.57,y:1.02,f:2.54},{n:'Quinten Timber',p:'MF',r:2.20,y:0.00,f:2.20}],
+  'Norway': [{n:'Jørgen Strand Larsen',p:'FW',r:9.31,y:3.10,f:3.10},{n:'Morten Thorsby',p:'MF',r:3.35,y:0.67,f:2.01},{n:'David Møller Wolfe',p:'DF',r:1.70,y:0.13,f:1.44}],
+  'Panama': [{n:'José Córdoba',p:'DF',r:4.15,y:0.64,f:2.87},{n:'Azarias Londoño',p:'FW',r:3.81,y:0.00,f:3.81},{n:'Aníbal Godoy',p:'MF',r:3.31,y:0.66,f:1.99}],
+  'Paraguay': [{n:'Matías Galarza Fonda',p:'MF',r:3.72,y:0.50,f:2.73},{n:'Isidro Pitta',p:'FW',r:2.93,y:0.42,f:2.09},{n:'Andrés Cubas',p:'MF',r:2.91,y:0.32,f:2.28}],
+  'Portugal': [{n:'Diogo Dalot',p:'DF',r:2.37,y:0.00,f:2.37},{n:'João Félix',p:'FW',r:2.35,y:0.47,f:1.41},{n:'João Cancelo',p:'DF',r:2.20,y:0.31,f:1.57}],
+  'Qatar': [{n:'Mohammed Muntari',p:'FW',r:5.63,y:1.12,f:3.38},{n:'Yusuf Abdurisag',p:'FW',r:4.35,y:1.45,f:1.45},{n:'Mohamed Al-Mannai',p:'MF',r:4.03,y:0.67,f:2.69}],
+  'Saudi Arabia': [{n:'Saud Abdulhamid',p:'DF',r:2.85,y:0.61,f:1.63},{n:'Nawaf Boushal',p:'DF',r:2.62,y:0.48,f:1.67},{n:'Ali Majrashi',p:'DF',r:1.84,y:0.00,f:1.84}],
+  'Scotland': [{n:'George Hirst',p:'FW',r:10.00,y:0.00,f:10.00},{n:'Lewis Ferguson',p:'MF',r:4.20,y:0.60,f:3.00},{n:'Kieran Tierney',p:'DF',r:4.19,y:2.09,f:0.00}],
+  'South Africa': [{n:'Kamogelo Sebelebele',p:'DF',r:9.31,y:0.00,f:9.31},{n:'Tshepang Moremi',p:'FW',r:9.00,y:0.00,f:9.00},{n:'Thalente Mbatha',p:'MF',r:2.78,y:0.31,f:2.16}],
+  'South Korea': [{n:'Dong-gyeong Lee',p:'MF',r:3.91,y:0.00,f:3.91},{n:'Han-beom Lee',p:'DF',r:3.00,y:0.00,f:3.00},{n:'Tae-seok Lee',p:'DF',r:2.89,y:0.48,f:1.93}],
+  'Spain': [{n:'Rodri',p:'MF',r:4.00,y:0.00,f:4.00},{n:'Mikel Merino',p:'MF',r:2.69,y:0.19,f:2.31},{n:'Álex Baena',p:'FW',r:2.17,y:0.43,f:1.30}],
+  'Sweden': [{n:'Jesper Karlström',p:'MF',r:4.30,y:0.57,f:3.15},{n:'Lucas Bergvall',p:'MF',r:2.73,y:0.55,f:1.64},{n:'Besfort Zeneli',p:'MF',r:2.60,y:0.65,f:1.30}],
+  'Switzerland': [{n:'Cedric Itten',p:'FW',r:18.00,y:0.00,f:18.00},{n:'Miro Muheim',p:'DF',r:6.93,y:0.99,f:4.95},{n:'Denis Zakaria',p:'MF',r:3.33,y:0.00,f:3.33}],
+  'Türkiye': [{n:'Deniz Gül',p:'FW',r:4.74,y:1.18,f:2.37},{n:'Barış Alper Yılmaz',p:'FW',r:3.75,y:0.00,f:3.75},{n:'Salih Özcan',p:'MF',r:3.41,y:0.68,f:2.05}],
+  'Uruguay': [{n:'Emiliano Martínez',p:'MF',r:3.56,y:0.89,f:1.78},{n:'Rodrigo Bentancur',p:'MF',r:2.94,y:0.49,f:1.96},{n:'Nicolás de la Cruz',p:'MF',r:2.70,y:0.16,f:2.38}],
+  'Uzbekistan': [{n:'Igor Sergeev',p:'FW',r:12.86,y:0.00,f:12.86},{n:'Farrukh Sayfiev',p:'DF',r:3.82,y:0.32,f:3.18},{n:'Oston Urunov',p:'FW',r:2.81,y:0.00,f:2.81}],
+};
+
+// Form helpers
+function teamForm(name) { return TEAM_FORM[name] || null; }
+function disciplineRisk(name) { return DISCIPLINE_RISK[name] || []; }
+
+// Form-based expected goals for `team` vs `opp`:
+//   expG = mean of team's GF/90 and opponent's GA/90 (regression to mean handled by averaging)
+function expGoals(team, opp) {
+  const a = teamForm(team), b = teamForm(opp);
+  if (!a || !b) return null;
+  return (a.gf + b.ga) / 2;
+}
+
+// Combined captain score using form data:
+//   base       = team's expected goals (xG proxy)
+//   shotEdge   = team's SoT/90 vs tournament avg (~5)
+//   cleanSheet = 1 + opponent's relative defensive weakness
+//   Result is multiplicative, capped 0-30.
+function formCaptainScore(team, opp) {
+  const eg = expGoals(team, opp);
+  const a = teamForm(team);
+  if (eg === null || !a) return null;
+  const shotEdge = (a.sot || 4) / 4.5;     // normalised to tournament avg
+  const score = eg * shotEdge * 5;          // scale to roughly 0-30 range
+  return Math.round(score * 10) / 10;
+}
+
+// Clean sheet score for `team` in a fixture vs `opp`.
+// Higher = better clean sheet bet. Uses CS ratio + opponent attacking weakness.
+function cleanSheetScore(team, opp) {
+  const a = teamForm(team), b = teamForm(opp);
+  if (!a || !b) return null;
+  const csRate = (a.cs / Math.max(1, a.games));   // 0-1
+  const oppGoals = b.gf;
+  // High csRate + low opponent gf = strong clean sheet bet
+  const score = csRate * (3 / Math.max(0.5, oppGoals)) * 10;
+  return Math.round(score * 10) / 10;
+}
+
+// ============================================================
+// All 72 group stage fixtures - verified BST kick-off times
+// Source: ESPN, NBC Sports, Yahoo Sports, Axios, FIFA (cross-referenced June 2026)
+// ============================================================
+const FIXTURES = [
+  // ============================================================
+  // Group A (Mexico)
+  // ============================================================
+  { group: "A", round: 1, date: "11 Jun", bstDate: "11 Jun", bstTime: "20:00", venue: "Mexico City", home: "Mexico", away: "South Africa" },
+  { group: "A", round: 1, date: "11 Jun", bstDate: "12 Jun", bstTime: "03:00", venue: "Zapopan", home: "South Korea", away: "Czechia" },
+  { group: "A", round: 2, date: "18 Jun", bstDate: "18 Jun", bstTime: "17:00", venue: "Atlanta", home: "Czechia", away: "South Africa" },
+  { group: "A", round: 2, date: "18 Jun", bstDate: "19 Jun", bstTime: "02:00", venue: "Zapopan", home: "Mexico", away: "South Korea" },
+  { group: "A", round: 3, date: "24 Jun", bstDate: "25 Jun", bstTime: "02:00", venue: "Mexico City", home: "Czechia", away: "Mexico" },
+  { group: "A", round: 3, date: "24 Jun", bstDate: "25 Jun", bstTime: "02:00", venue: "Monterrey", home: "South Africa", away: "South Korea" },
+
+  // ============================================================
+  // Group B (Canada)
+  // ============================================================
+  { group: "B", round: 1, date: "12 Jun", bstDate: "12 Jun", bstTime: "20:00", venue: "Toronto", home: "Canada", away: "Bosnia and Herzegovina" },
+  { group: "B", round: 1, date: "13 Jun", bstDate: "13 Jun", bstTime: "20:00", venue: "Santa Clara", home: "Qatar", away: "Switzerland" },
+  { group: "B", round: 2, date: "18 Jun", bstDate: "18 Jun", bstTime: "20:00", venue: "Inglewood", home: "Switzerland", away: "Bosnia and Herzegovina" },
+  { group: "B", round: 2, date: "18 Jun", bstDate: "18 Jun", bstTime: "23:00", venue: "Vancouver", home: "Canada", away: "Qatar" },
+  { group: "B", round: 3, date: "24 Jun", bstDate: "24 Jun", bstTime: "20:00", venue: "Vancouver", home: "Switzerland", away: "Canada" },
+  { group: "B", round: 3, date: "24 Jun", bstDate: "24 Jun", bstTime: "20:00", venue: "Seattle", home: "Bosnia and Herzegovina", away: "Qatar" },
+
+  // ============================================================
+  // Group C (Brazil)
+  // ============================================================
+  { group: "C", round: 1, date: "13 Jun", bstDate: "13 Jun", bstTime: "23:00", venue: "East Rutherford", home: "Brazil", away: "Morocco" },
+  { group: "C", round: 1, date: "13 Jun", bstDate: "14 Jun", bstTime: "02:00", venue: "Foxborough", home: "Haiti", away: "Scotland" },
+  { group: "C", round: 2, date: "19 Jun", bstDate: "19 Jun", bstTime: "23:00", venue: "Foxborough", home: "Scotland", away: "Morocco" },
+  { group: "C", round: 2, date: "19 Jun", bstDate: "20 Jun", bstTime: "02:00", venue: "Philadelphia", home: "Brazil", away: "Haiti" },
+  { group: "C", round: 3, date: "24 Jun", bstDate: "24 Jun", bstTime: "23:00", venue: "Miami Gardens", home: "Scotland", away: "Brazil" },
+  { group: "C", round: 3, date: "24 Jun", bstDate: "24 Jun", bstTime: "23:00", venue: "Atlanta", home: "Morocco", away: "Haiti" },
+
+  // ============================================================
+  // Group D (USA)
+  // ============================================================
+  { group: "D", round: 1, date: "12 Jun", bstDate: "13 Jun", bstTime: "02:00", venue: "Inglewood", home: "USA", away: "Paraguay" },
+  { group: "D", round: 1, date: "13 Jun", bstDate: "13 Jun", bstTime: "23:00", venue: "Vancouver", home: "Australia", away: "Türkiye" },
+  { group: "D", round: 2, date: "19 Jun", bstDate: "19 Jun", bstTime: "20:00", venue: "Seattle", home: "USA", away: "Australia" },
+  { group: "D", round: 2, date: "19 Jun", bstDate: "20 Jun", bstTime: "05:00", venue: "Santa Clara", home: "Türkiye", away: "Paraguay" },
+  { group: "D", round: 3, date: "25 Jun", bstDate: "26 Jun", bstTime: "03:00", venue: "Inglewood", home: "USA", away: "Türkiye" },
+  { group: "D", round: 3, date: "25 Jun", bstDate: "26 Jun", bstTime: "03:00", venue: "Santa Clara", home: "Paraguay", away: "Australia" },
+
+  // ============================================================
+  // Group E (Germany)
+  // ============================================================
+  { group: "E", round: 1, date: "14 Jun", bstDate: "14 Jun", bstTime: "18:00", venue: "Houston", home: "Germany", away: "Curacao" },
+  { group: "E", round: 1, date: "14 Jun", bstDate: "14 Jun", bstTime: "21:00", venue: "Philadelphia", home: "Ivory Coast", away: "Ecuador" },
+  { group: "E", round: 2, date: "20 Jun", bstDate: "20 Jun", bstTime: "21:00", venue: "Toronto", home: "Germany", away: "Ivory Coast" },
+  { group: "E", round: 2, date: "20 Jun", bstDate: "21 Jun", bstTime: "01:00", venue: "Kansas City", home: "Ecuador", away: "Curacao" },
+  { group: "E", round: 3, date: "25 Jun", bstDate: "25 Jun", bstTime: "21:00", venue: "Toronto", home: "Germany", away: "Ecuador" },
+  { group: "E", round: 3, date: "25 Jun", bstDate: "25 Jun", bstTime: "21:00", venue: "Kansas City", home: "Curacao", away: "Ivory Coast" },
+
+  // ============================================================
+  // Group F (Netherlands)
+  // ============================================================
+  { group: "F", round: 1, date: "14 Jun", bstDate: "15 Jun", bstTime: "00:00", venue: "Dallas", home: "Netherlands", away: "Japan" },
+  { group: "F", round: 1, date: "14 Jun", bstDate: "15 Jun", bstTime: "03:00", venue: "Monterrey", home: "Sweden", away: "Tunisia" },
+  { group: "F", round: 2, date: "20 Jun", bstDate: "20 Jun", bstTime: "18:00", venue: "Houston", home: "Netherlands", away: "Sweden" },
+  { group: "F", round: 2, date: "20 Jun", bstDate: "21 Jun", bstTime: "05:00", venue: "Monterrey", home: "Tunisia", away: "Japan" },
+  { group: "F", round: 3, date: "25 Jun", bstDate: "26 Jun", bstTime: "00:00", venue: "Dallas", home: "Japan", away: "Sweden" },
+  { group: "F", round: 3, date: "25 Jun", bstDate: "26 Jun", bstTime: "00:00", venue: "Kansas City", home: "Tunisia", away: "Netherlands" },
+
+  // ============================================================
+  // Group G (Belgium)
+  // ============================================================
+  { group: "G", round: 1, date: "15 Jun", bstDate: "15 Jun", bstTime: "20:00", venue: "Seattle", home: "Belgium", away: "Egypt" },
+  { group: "G", round: 1, date: "15 Jun", bstDate: "16 Jun", bstTime: "02:00", venue: "Inglewood", home: "Iran", away: "New Zealand" },
+  { group: "G", round: 2, date: "21 Jun", bstDate: "21 Jun", bstTime: "20:00", venue: "Inglewood", home: "Belgium", away: "Iran" },
+  { group: "G", round: 2, date: "21 Jun", bstDate: "22 Jun", bstTime: "02:00", venue: "Vancouver", home: "New Zealand", away: "Egypt" },
+  { group: "G", round: 3, date: "26 Jun", bstDate: "27 Jun", bstTime: "04:00", venue: "Seattle", home: "Egypt", away: "Iran" },
+  { group: "G", round: 3, date: "26 Jun", bstDate: "27 Jun", bstTime: "04:00", venue: "Vancouver", home: "New Zealand", away: "Belgium" },
+
+  // ============================================================
+  // Group H (Spain)
+  // ============================================================
+  { group: "H", round: 1, date: "15 Jun", bstDate: "15 Jun", bstTime: "17:00", venue: "Atlanta", home: "Spain", away: "Cabo Verde" },
+  { group: "H", round: 1, date: "15 Jun", bstDate: "15 Jun", bstTime: "23:00", venue: "Miami Gardens", home: "Saudi Arabia", away: "Uruguay" },
+  { group: "H", round: 2, date: "21 Jun", bstDate: "21 Jun", bstTime: "17:00", venue: "Atlanta", home: "Spain", away: "Saudi Arabia" },
+  { group: "H", round: 2, date: "21 Jun", bstDate: "21 Jun", bstTime: "23:00", venue: "Foxborough", home: "Uruguay", away: "Cabo Verde" },
+  { group: "H", round: 3, date: "26 Jun", bstDate: "27 Jun", bstTime: "01:00", venue: "Guadalajara", home: "Spain", away: "Uruguay" },
+  { group: "H", round: 3, date: "26 Jun", bstDate: "27 Jun", bstTime: "01:00", venue: "Mexico City", home: "Cabo Verde", away: "Saudi Arabia" },
+
+  // ============================================================
+  // Group I (France)
+  // ============================================================
+  { group: "I", round: 1, date: "16 Jun", bstDate: "16 Jun", bstTime: "20:00", venue: "East Rutherford", home: "France", away: "Senegal" },
+  { group: "I", round: 1, date: "16 Jun", bstDate: "16 Jun", bstTime: "23:00", venue: "Foxborough", home: "Iraq", away: "Norway" },
+  { group: "I", round: 2, date: "22 Jun", bstDate: "22 Jun", bstTime: "22:00", venue: "Philadelphia", home: "France", away: "Iraq" },
+  { group: "I", round: 2, date: "22 Jun", bstDate: "23 Jun", bstTime: "02:00", venue: "East Rutherford", home: "Senegal", away: "Norway" },
+  { group: "I", round: 3, date: "27 Jun", bstDate: "27 Jun", bstTime: "20:00", venue: "Foxborough", home: "France", away: "Norway" },
+  { group: "I", round: 3, date: "27 Jun", bstDate: "27 Jun", bstTime: "20:00", venue: "Philadelphia", home: "Senegal", away: "Iraq" },
+
+  // ============================================================
+  // Group J (Argentina)
+  // ============================================================
+  { group: "J", round: 1, date: "16 Jun", bstDate: "17 Jun", bstTime: "02:00", venue: "Kansas City", home: "Argentina", away: "Algeria" },
+  { group: "J", round: 1, date: "16 Jun", bstDate: "17 Jun", bstTime: "05:00", venue: "Santa Clara", home: "Austria", away: "Jordan" },
+  { group: "J", round: 2, date: "22 Jun", bstDate: "22 Jun", bstTime: "17:00", venue: "Inglewood", home: "Algeria", away: "Jordan" },
+  { group: "J", round: 2, date: "22 Jun", bstDate: "22 Jun", bstTime: "18:00", venue: "Dallas", home: "Argentina", away: "Austria" },
+  { group: "J", round: 3, date: "27 Jun", bstDate: "28 Jun", bstTime: "03:00", venue: "Dallas", home: "Argentina", away: "Jordan" },
+  { group: "J", round: 3, date: "27 Jun", bstDate: "28 Jun", bstTime: "03:00", venue: "Inglewood", home: "Austria", away: "Algeria" },
+
+  // ============================================================
+  // Group K (Portugal)
+  // ============================================================
+  { group: "K", round: 1, date: "17 Jun", bstDate: "17 Jun", bstTime: "18:00", venue: "Houston", home: "Portugal", away: "DR Congo" },
+  { group: "K", round: 1, date: "17 Jun", bstDate: "17 Jun", bstTime: "21:00", venue: "Atlanta", home: "Uzbekistan", away: "Colombia" },
+  { group: "K", round: 2, date: "23 Jun", bstDate: "23 Jun", bstTime: "18:00", venue: "Dallas", home: "Portugal", away: "Uzbekistan" },
+  { group: "K", round: 2, date: "23 Jun", bstDate: "23 Jun", bstTime: "21:00", venue: "Toronto", home: "Colombia", away: "DR Congo" },
+  { group: "K", round: 3, date: "27 Jun", bstDate: "28 Jun", bstTime: "00:30", venue: "Mexico City", home: "Colombia", away: "Portugal" },
+  { group: "K", round: 3, date: "27 Jun", bstDate: "27 Jun", bstTime: "23:00", venue: "Atlanta", home: "Uzbekistan", away: "DR Congo" },
+
+  // ============================================================
+  // Group L (England)
+  // ============================================================
+  { group: "L", round: 1, date: "17 Jun", bstDate: "17 Jun", bstTime: "21:00", venue: "Arlington", home: "England", away: "Croatia" },
+  { group: "L", round: 1, date: "17 Jun", bstDate: "18 Jun", bstTime: "00:00", venue: "Toronto", home: "Ghana", away: "Panama" },
+  { group: "L", round: 2, date: "23 Jun", bstDate: "23 Jun", bstTime: "21:00", venue: "Foxborough", home: "England", away: "Ghana" },
+  { group: "L", round: 2, date: "23 Jun", bstDate: "24 Jun", bstTime: "00:00", venue: "Atlanta", home: "Croatia", away: "Panama" },
+  { group: "L", round: 3, date: "27 Jun", bstDate: "27 Jun", bstTime: "22:00", venue: "East Rutherford", home: "England", away: "Panama" },
+  { group: "L", round: 3, date: "27 Jun", bstDate: "27 Jun", bstTime: "22:00", venue: "Atlanta", home: "Croatia", away: "Ghana" }
+];
+
+// Enrich fixtures with rank data
+FIXTURES.forEach(f => {
+  f.homeRank = RANKINGS[f.home] || 99;
+  f.awayRank = RANKINGS[f.away] || 99;
+  f.gap = Math.abs(f.homeRank - f.awayRank);
+  f.favourite = f.homeRank < f.awayRank ? f.home : f.away;
+  f.underdog = f.homeRank < f.awayRank ? f.away : f.home;
+  f.id = `${f.group}-R${f.round}-${f.home}-${f.away}`.replace(/\s+/g, "_");
+});
+
+// ============================================================
+// Default player picks
+// ============================================================
+const DEFAULT_PICKS = {};
+
+function setPick(homeAwayPattern, attack, defence) {
+  const fx = FIXTURES.find(f => `${f.home}|${f.away}` === homeAwayPattern);
+  if (fx) DEFAULT_PICKS[fx.id] = { attack, defence };
+}
+
+// Round 1
+setPick("Mexico|South Africa", "Santiago Gimenez, Hirving Lozano, Raul Jimenez", "Guillermo Ochoa, Cesar Montes (Mexico)");
+setPick("South Korea|Czechia", "Son Heung-min, Lee Kang-in", "Kim Min-jae (Korea)");
+setPick("Canada|Bosnia and Herzegovina", "Jonathan David, Alphonso Davies (Canada)", "Maxime Crepeau, Moise Bombito");
+setPick("Qatar|Switzerland", "Granit Xhaka, Breel Embolo (Switzerland)", "Switzerland clean sheet possible");
+setPick("Brazil|Morocco", "Tight fixture, both top class", "Risky for clean sheet");
+setPick("Haiti|Scotland", "Scott McTominay, John McGinn (Scotland)", "Angus Gunn");
+setPick("United States|Paraguay", "Christian Pulisic, Tim Weah", "Matt Turner, Antonee Robinson");
+setPick("Australia|Turkey", "Hakan Calhanoglu, Arda Guler (Turkey)", "Mert Gunok");
+setPick("Germany|Curacao", "Florian Wirtz, Jamal Musiala, Kai Havertz, Leroy Sane", "Ter Stegen, Rudiger, Kimmich (heavy favourites)");
+setPick("Ivory Coast|Ecuador", "Pepe, Haller (CIV), Enner Valencia (Ecu)", "Open fixture");
+setPick("Netherlands|Japan", "Cody Gakpo, Memphis Depay (Ned), Mitoma (Jpn)", "Tighter than expected");
+setPick("Sweden|Tunisia", "Viktor Gyokeres, Dejan Kulusevski", "Robin Olsen");
+setPick("Belgium|Egypt", "Kevin De Bruyne, Jeremy Doku, Lukaku (Belgium), Salah (Egypt)", "Casteels, Faes (Belgium)");
+setPick("Iran|New Zealand", "Mehdi Taremi, Sardar Azmoun", "Iran clean sheet likely");
+setPick("Spain|Cabo Verde", "Lamine Yamal, Nico Williams, Morata, Oyarzabal, Pedri", "Unai Simon, Cubarsi, Laporte, Carvajal");
+setPick("Saudi Arabia|Uruguay", "Darwin Nunez, Federico Valverde (Uruguay)", "Sergio Rochet, R. Araujo, Gimenez");
+setPick("France|Senegal", "Tight fixture, avoid for fantasy captain", "Risky both ends");
+setPick("Iraq|Norway", "Erling Haaland, Martin Odegaard (Norway)", "Norway clean sheet possible");
+setPick("Argentina|Algeria", "Lionel Messi, Julian Alvarez, Lautaro Martinez", "Emi Martinez, Romero, Otamendi");
+setPick("Austria|Jordan", "Marcel Sabitzer, Marko Arnautovic", "Patrick Pentz");
+setPick("Portugal|DR Congo", "Cristiano Ronaldo, Bruno Fernandes, Rafael Leao, Bernardo Silva", "Diogo Costa, Ruben Dias, Nuno Mendes");
+setPick("Uzbekistan|Colombia", "Luis Diaz, James Rodriguez, Jhon Duran (Colombia)", "David Ospina");
+setPick("England|Croatia", "Tight, manage exposure", "Risky for clean sheet");
+setPick("Ghana|Panama", "Mohammed Kudus, Inaki Williams (Ghana)", "Open fixture");
+
+// Round 2
+setPick("Czechia|South Africa", "Patrik Schick, Adam Hlozek", "Tomas Vaclik");
+setPick("Mexico|South Korea", "Lozano, Gimenez (Mex), Son (Kor)", "Tight");
+setPick("Switzerland|Bosnia and Herzegovina", "Granit Xhaka, Breel Embolo, Edin Dzeko", "Open fixture");
+setPick("Canada|Qatar", "Jonathan David, Alphonso Davies", "Canada home favourites");
+setPick("Scotland|Morocco", "Hakim Ziyech, En-Nesyri (Morocco)", "Bounou, Hakimi");
+setPick("Brazil|Haiti", "Vinicius Junior, Rodrygo, Raphinha, Endrick", "Alisson, Marquinhos, Militao");
+setPick("Turkey|Paraguay", "Hakan Calhanoglu, Arda Guler", "Mert Gunok");
+setPick("United States|Australia", "Pulisic, Weah, Gio Reyna", "Matt Turner, Robinson");
+setPick("Germany|Ivory Coast", "Wirtz, Musiala, Havertz, Sane", "Ter Stegen, Rudiger, Tah");
+setPick("Ecuador|Curacao", "Enner Valencia, Kendry Paez, Moises Caicedo", "Hernan Galindez, Piero Hincapie");
+setPick("Netherlands|Sweden", "Gakpo, Depay (Ned), Gyokeres (Swe)", "Tight");
+setPick("Tunisia|Japan", "Mitoma, Kubo, Kamada (Japan)", "Japan favoured");
+setPick("Belgium|Iran", "De Bruyne, Doku, Lukaku", "Casteels, Faes");
+setPick("New Zealand|Egypt", "Mohamed Salah, Mostafa Mohamed", "Egypt favoured");
+setPick("Spain|Saudi Arabia", "Yamal, Nico Williams, Morata, Oyarzabal", "Unai Simon, Cubarsi, Laporte");
+setPick("Uruguay|Cabo Verde", "Darwin Nunez, Valverde, Maxi Araujo", "Sergio Rochet, R. Araujo");
+setPick("France|Iraq", "Mbappe, Dembele, Olise, Kolo Muani", "Maignan, Saliba, Upamecano");
+setPick("Norway|Senegal", "Haaland (Nor), Mane, Jackson (Sen)", "Tight");
+setPick("Argentina|Austria", "Messi, Alvarez, Lautaro", "Emi Martinez, Romero");
+setPick("Jordan|Algeria", "Riyad Mahrez, Said Benrahma", "Algeria favoured");
+setPick("Portugal|Uzbekistan", "Ronaldo, Bruno Fernandes, Leao, Bernardo", "Diogo Costa, Dias, Nuno Mendes");
+setPick("Colombia|DR Congo", "Luis Diaz, James, Duran", "Ospina, Davinson Sanchez");
+setPick("England|Ghana", "Harry Kane, Bukayo Saka, Foden, Palmer, Bellingham", "Pickford, Stones, Guehi");
+setPick("Panama|Croatia", "Luka Modric, Andrej Kramaric, Sosa", "Dominik Livakovic");
+
+// Round 3
+setPick("Czechia|Mexico", "Santiago Gimenez, Lozano (Mex)", "Ochoa, Montes");
+setPick("South Africa|South Korea", "Son Heung-min, Lee Kang-in", "Tight");
+setPick("Switzerland|Canada", "Embolo, Xhaka (Swi), David (Can)", "Tight");
+setPick("Bosnia and Herzegovina|Qatar", "Edin Dzeko, Sead Kolasinac", "Bosnia favoured");
+setPick("Scotland|Brazil", "Vinicius, Rodrygo, Raphinha, Endrick", "Alisson, Marquinhos, Militao, Wesley");
+setPick("Morocco|Haiti", "Hakim Ziyech, En-Nesyri, Brahim Diaz", "Bounou, Hakimi (heavy favourites)");
+setPick("Turkey|United States", "Pulisic, Calhanoglu, Guler", "Open fixture");
+setPick("Paraguay|Australia", "Miguel Almiron, Julio Enciso", "Tight");
+setPick("Ecuador|Germany", "Wirtz, Musiala, Havertz, Sane", "Ter Stegen, Rudiger, Kimmich (Germany still favoured)");
+setPick("Curacao|Ivory Coast", "Pepe, Haller", "Yahia Fofana (CIV favoured)");
+setPick("Tunisia|Netherlands", "Gakpo, Depay, Reijnders", "Verbruggen, van Dijk, Ake");
+setPick("Japan|Sweden", "Gyokeres (Swe), Mitoma (Jpn)", "Tight");
+setPick("New Zealand|Belgium", "De Bruyne, Doku, Lukaku, Trossard", "Casteels, Faes, Theate (heavy favourites)");
+setPick("Egypt|Iran", "Salah (Egy), Taremi (Iran)", "Tight");
+setPick("Uruguay|Spain", "Tight, avoid heavy exposure", "Risky");
+setPick("Cabo Verde|Saudi Arabia", "Open fixture, both can score", "Risky");
+setPick("Norway|France", "Tight, Mbappe v Haaland", "Risky both ends");
+setPick("Senegal|Iraq", "Sadio Mane, Nicolas Jackson, Ismaila Sarr", "Edouard Mendy");
+setPick("Jordan|Argentina", "Messi, Alvarez, Lautaro, Garnacho", "Emi Martinez, Romero, Otamendi");
+setPick("Algeria|Austria", "Mahrez (Alg), Sabitzer (Aut)", "Tight");
+setPick("Colombia|Portugal", "Tight, both strong", "Risky");
+setPick("DR Congo|Uzbekistan", "Eldor Shomurodov (Uzb), Cedric Bakambu (DRC)", "Open fixture");
+setPick("Panama|England", "Kane, Saka, Foden, Palmer", "Pickford, Stones, Guehi");
+setPick("Croatia|Ghana", "Modric, Kramaric (Cro), Kudus (Gha)", "Livakovic");
+
+// ============================================================
+// Player database
+// ============================================================
+// Player database for FIFA World Cup 2026 Fantasy
+// Pricing confirmed from FIFA Fantasy and Fantasy Football Scout sources
+// Tier: premium-att, mid-att, budget-mid, premium-def, budget-def, gk
+const PLAYERS = [
+  // === GOALKEEPERS ===
+  { name: "Unai Simon", team: "Spain", pos: "GK", price: 5.0, tier: "gk" },
+  { name: "Diogo Costa", team: "Portugal", pos: "GK", price: 5.0, tier: "gk" },
+  { name: "Courtois", team: "Belgium", pos: "GK", price: 4.9, tier: "gk" },
+  { name: "E. Martinez", team: "Argentina", pos: "GK", price: 5.0, tier: "gk" },
+  { name: "Pickford", team: "England", pos: "GK", price: 4.8, tier: "gk" },
+  { name: "Maignan", team: "France", pos: "GK", price: 4.8, tier: "gk" },
+  { name: "Alisson", team: "Brazil", pos: "GK", price: 4.8, tier: "gk" },
+  { name: "ter Stegen", team: "Germany", pos: "GK", price: 4.7, tier: "gk" },
+  { name: "Verbruggen", team: "Netherlands", pos: "GK", price: 4.5, tier: "gk" },
+  { name: "Kobel", team: "Switzerland", pos: "GK", price: 4.7, tier: "gk" },
+  { name: "Ochoa", team: "Mexico", pos: "GK", price: 4.0, tier: "gk" },
+  { name: "Bounou", team: "Morocco", pos: "GK", price: 4.5, tier: "gk" },
+  { name: "Livakovic", team: "Croatia", pos: "GK", price: 4.5, tier: "gk" },
+  { name: "Rangel", team: "Mexico", pos: "GK", price: 3.9, tier: "gk" },
+  { name: "Padilla", team: "Mexico", pos: "GK", price: 3.5, tier: "gk" },
+
+  // === DEFENDERS ===
+  // Spain
+  { name: "Laporte", team: "Spain", pos: "DEF", price: 5.5, tier: "premium-def" },
+  { name: "Cubarsi", team: "Spain", pos: "DEF", price: 5.0, tier: "premium-def" },
+  { name: "Carvajal", team: "Spain", pos: "DEF", price: 5.0, tier: "premium-def" },
+  // Germany
+  { name: "Kimmich", team: "Germany", pos: "DEF", price: 5.5, tier: "premium-def" },
+  { name: "Tah", team: "Germany", pos: "DEF", price: 5.3, tier: "premium-def" },
+  { name: "Rudiger", team: "Germany", pos: "DEF", price: 5.3, tier: "premium-def" },
+  { name: "Schlotterbeck", team: "Germany", pos: "DEF", price: 5.3, tier: "premium-def" },
+  // Portugal
+  { name: "Joao Cancelo", team: "Portugal", pos: "DEF", price: 5.3, tier: "premium-def" },
+  { name: "Ruben Dias", team: "Portugal", pos: "DEF", price: 5.5, tier: "premium-def" },
+  { name: "Nuno Mendes", team: "Portugal", pos: "DEF", price: 5.0, tier: "premium-def" },
+  // Argentina
+  { name: "Romero", team: "Argentina", pos: "DEF", price: 5.0, tier: "premium-def", fitness: "doubt" },
+  { name: "Otamendi", team: "Argentina", pos: "DEF", price: 4.5, tier: "budget-def" },
+  { name: "Tagliafico", team: "Argentina", pos: "DEF", price: 4.5, tier: "budget-def" },
+  // England
+  { name: "Stones", team: "England", pos: "DEF", price: 5.3, tier: "premium-def" },
+  { name: "Guehi", team: "England", pos: "DEF", price: 5.0, tier: "premium-def" },
+  { name: "Trippier", team: "England", pos: "DEF", price: 5.0, tier: "premium-def" },
+  // France
+  { name: "Saliba", team: "France", pos: "DEF", price: 5.3, tier: "premium-def" },
+  { name: "Upamecano", team: "France", pos: "DEF", price: 5.0, tier: "premium-def" },
+  { name: "Theo Hernandez", team: "France", pos: "DEF", price: 5.3, tier: "premium-def" },
+  // Brazil
+  { name: "Marquinhos", team: "Brazil", pos: "DEF", price: 5.0, tier: "premium-def" },
+  { name: "Militao", team: "Brazil", pos: "DEF", price: 5.0, tier: "premium-def" },
+  { name: "Wesley", team: "Brazil", pos: "DEF", price: 4.5, tier: "budget-def" },
+  // Netherlands
+  { name: "van Dijk", team: "Netherlands", pos: "DEF", price: 5.3, tier: "premium-def" },
+  { name: "Ake", team: "Netherlands", pos: "DEF", price: 5.0, tier: "premium-def" },
+  // Belgium
+  { name: "Faes", team: "Belgium", pos: "DEF", price: 4.5, tier: "budget-def" },
+  { name: "Castagne", team: "Belgium", pos: "DEF", price: 4.5, tier: "budget-def" },
+  { name: "Meunier", team: "Belgium", pos: "DEF", price: 4.3, tier: "budget-def" },
+  // Switzerland
+  { name: "Akanji", team: "Switzerland", pos: "DEF", price: 5.0, tier: "premium-def" },
+  { name: "Rodriguez", team: "Switzerland", pos: "DEF", price: 4.5, tier: "budget-def" },
+  // Mexico
+  { name: "Montes", team: "Mexico", pos: "DEF", price: 4.5, tier: "budget-def" },
+  { name: "Vasquez", team: "Mexico", pos: "DEF", price: 4.0, tier: "budget-def" },
+  // Uruguay
+  { name: "Gimenez", team: "Uruguay", pos: "DEF", price: 4.4, tier: "budget-def" },
+  { name: "Araujo", team: "Uruguay", pos: "DEF", price: 4.8, tier: "budget-def" },
+  // Colombia
+  { name: "Mojica", team: "Colombia", pos: "DEF", price: 3.9, tier: "budget-def" },
+  { name: "Sanchez", team: "Colombia", pos: "DEF", price: 4.3, tier: "budget-def" },
+  // Croatia
+  { name: "Gvardiol", team: "Croatia", pos: "DEF", price: 5.0, tier: "premium-def" },
+  // Morocco
+  { name: "Hakimi", team: "Morocco", pos: "DEF", price: 5.5, tier: "premium-def", fitness: "doubt" },
+  // Scotland
+  { name: "Robertson", team: "Scotland", pos: "DEF", price: 5.0, tier: "premium-def" },
+  // Norway
+  { name: "Ostigard", team: "Norway", pos: "DEF", price: 4.5, tier: "budget-def" },
+  // Bench enablers
+  { name: "Adam (cheap)", team: "Saudi Arabia", pos: "DEF", price: 3.5, tier: "budget-def" },
+  { name: "Mosquera", team: "Curacao", pos: "DEF", price: 3.5, tier: "budget-def" },
+
+  // === MIDFIELDERS ===
+  // Premium ($8m+)
+  { name: "Lamine Yamal", team: "Spain", pos: "MID", price: 10.0, tier: "premium-att", fitness: "doubt" },
+  { name: "Bellingham", team: "England", pos: "MID", price: 9.0, tier: "premium-att" },
+  { name: "Saka", team: "England", pos: "MID", price: 8.0, tier: "premium-att" },
+  { name: "Foden", team: "England", pos: "MID", price: 7.5, tier: "premium-att" },
+  { name: "Palmer", team: "England", pos: "MID", price: 7.5, tier: "premium-att" },
+  { name: "Bruno Fernandes", team: "Portugal", pos: "MID", price: 8.5, tier: "premium-att" },
+  { name: "Bernardo Silva", team: "Portugal", pos: "MID", price: 8.0, tier: "premium-att" },
+  { name: "Musiala", team: "Germany", pos: "MID", price: 8.0, tier: "premium-att", fitness: "doubt" },
+  { name: "Wirtz", team: "Germany", pos: "MID", price: 7.5, tier: "premium-att" },
+  { name: "Pedri", team: "Spain", pos: "MID", price: 8.1, tier: "premium-att" },
+  { name: "Nico Williams", team: "Spain", pos: "MID", price: 8.5, tier: "premium-att" },
+  { name: "Rodrygo", team: "Brazil", pos: "MID", price: 9.0, tier: "premium-att", fitness: "OUT" },
+  { name: "Raphinha", team: "Brazil", pos: "MID", price: 8.5, tier: "premium-att" },
+  { name: "Olise", team: "France", pos: "MID", price: 8.0, tier: "premium-att" },
+  { name: "Dembele", team: "France", pos: "MID", price: 8.5, tier: "premium-att" },
+  // Mid ($6-8m)
+  { name: "De Bruyne", team: "Belgium", pos: "MID", price: 7.5, tier: "premium-att", fitness: "doubt" },
+  { name: "Doku", team: "Belgium", pos: "MID", price: 7.5, tier: "premium-att" },
+  { name: "Valverde", team: "Uruguay", pos: "MID", price: 7.5, tier: "mid-att" },
+  { name: "Havertz", team: "Germany", pos: "FWD", price: 7.8, tier: "premium-att" },
+  { name: "Sane", team: "Germany", pos: "MID", price: 7.5, tier: "mid-att" },
+  { name: "Modric", team: "Croatia", pos: "MID", price: 6.5, tier: "mid-att" },
+  { name: "Ziyech", team: "Morocco", pos: "MID", price: 6.5, tier: "mid-att" },
+  { name: "James Rodriguez", team: "Colombia", pos: "MID", price: 6.5, tier: "mid-att" },
+  { name: "Luis Diaz", team: "Colombia", pos: "MID", price: 8.1, tier: "premium-att" },
+  { name: "Mahrez", team: "Algeria", pos: "MID", price: 7.0, tier: "mid-att" },
+  { name: "Mane", team: "Senegal", pos: "MID", price: 7.5, tier: "mid-att" },
+  { name: "Salah", team: "Egypt", pos: "MID", price: 8.0, tier: "premium-att" },
+  { name: "Trossard", team: "Belgium", pos: "MID", price: 6.6, tier: "mid-att" },
+  { name: "Saelemaekers", team: "Belgium", pos: "MID", price: 5.7, tier: "mid-att" },
+  { name: "Odegaard", team: "Norway", pos: "MID", price: 7.5, tier: "mid-att" },
+  { name: "Mitoma", team: "Japan", pos: "MID", price: 6.5, tier: "mid-att", fitness: "OUT" },
+  { name: "Kubo", team: "Japan", pos: "MID", price: 6.5, tier: "mid-att" },
+  { name: "Son", team: "South Korea", pos: "MID", price: 7.5, tier: "mid-att" },
+  { name: "Kudus", team: "Ghana", pos: "MID", price: 6.0, tier: "mid-att" },
+  { name: "Brahim Diaz", team: "Morocco", pos: "MID", price: 6.0, tier: "mid-att" },
+  // Budget ($4-6m)
+  { name: "Tielemans", team: "Belgium", pos: "MID", price: 6.1, tier: "mid-att" },
+  { name: "Calhanoglu", team: "Turkey", pos: "MID", price: 6.0, tier: "mid-att" },
+  { name: "Guler", team: "Turkey", pos: "MID", price: 5.5, tier: "budget-mid" },
+  { name: "McTominay", team: "Scotland", pos: "MID", price: 5.5, tier: "budget-mid" },
+  { name: "McGinn", team: "Scotland", pos: "MID", price: 5.0, tier: "budget-mid" },
+  { name: "McLean", team: "Scotland", pos: "MID", price: 4.8, tier: "budget-mid" },
+  { name: "Lozano", team: "Mexico", pos: "MID", price: 5.5, tier: "budget-mid" },
+  { name: "Caicedo", team: "Ecuador", pos: "MID", price: 5.0, tier: "budget-mid" },
+  { name: "Lee Kang-in", team: "South Korea", pos: "MID", price: 5.5, tier: "budget-mid" },
+  { name: "Reijnders", team: "Netherlands", pos: "MID", price: 7.0, tier: "mid-att" },
+  { name: "Arrascaeta", team: "Uruguay", pos: "MID", price: 6.5, tier: "mid-att" },
+  { name: "Pellistri", team: "Uruguay", pos: "MID", price: 5.5, tier: "budget-mid" },
+  // Cheap enablers
+  { name: "Mastouri", team: "Tunisia", pos: "MID", price: 4.2, tier: "budget-mid" },
+  { name: "Vacca", team: "Curacao", pos: "MID", price: 4.0, tier: "budget-mid" },
+
+  // === FORWARDS ===
+  // Premium ($9m+)
+  { name: "Harry Kane", team: "England", pos: "FWD", price: 10.5, tier: "premium-att" },
+  { name: "Mbappe", team: "France", pos: "FWD", price: 10.5, tier: "premium-att" },
+  { name: "Haaland", team: "Norway", pos: "FWD", price: 10.5, tier: "premium-att" },
+  { name: "Messi", team: "Argentina", pos: "FWD", price: 10.0, tier: "premium-att", fitness: "watch" },
+  { name: "Vinicius Jr", team: "Brazil", pos: "FWD", price: 10.0, tier: "premium-att" },
+  { name: "Ronaldo", team: "Portugal", pos: "FWD", price: 10.0, tier: "premium-att" },
+  // Mid-premium ($7-9m)
+  { name: "Oyarzabal", team: "Spain", pos: "FWD", price: 8.1, tier: "premium-att" },
+  { name: "Morata", team: "Spain", pos: "FWD", price: 7.5, tier: "mid-att" },
+  { name: "Lautaro Martinez", team: "Argentina", pos: "FWD", price: 8.5, tier: "premium-att" },
+  { name: "Julian Alvarez", team: "Argentina", pos: "FWD", price: 8.5, tier: "premium-att" },
+  { name: "Lukaku", team: "Belgium", pos: "FWD", price: 7.4, tier: "mid-att" },
+  { name: "Openda", team: "Belgium", pos: "FWD", price: 7.0, tier: "mid-att" },
+  { name: "Darwin Nunez", team: "Uruguay", pos: "FWD", price: 7.5, tier: "premium-att" },
+  { name: "Gakpo", team: "Netherlands", pos: "FWD", price: 8.0, tier: "premium-att" },
+  { name: "Depay", team: "Netherlands", pos: "FWD", price: 7.5, tier: "mid-att" },
+  { name: "Endrick", team: "Brazil", pos: "FWD", price: 7.5, tier: "mid-att" },
+  { name: "En-Nesyri", team: "Morocco", pos: "FWD", price: 7.0, tier: "mid-att" },
+  { name: "Kolo Muani", team: "France", pos: "FWD", price: 7.5, tier: "mid-att" },
+  { name: "Kramaric", team: "Croatia", pos: "FWD", price: 6.5, tier: "mid-att" },
+  // Mid ($5-7m)
+  { name: "S. Gimenez", team: "Mexico", pos: "FWD", price: 6.5, tier: "mid-att" },
+  { name: "Jimenez", team: "Mexico", pos: "FWD", price: 6.0, tier: "mid-att" },
+  { name: "Valencia", team: "Ecuador", pos: "FWD", price: 6.0, tier: "mid-att" },
+  { name: "Gyokeres", team: "Sweden", pos: "FWD", price: 7.0, tier: "mid-att" },
+  { name: "Taremi", team: "Iran", pos: "FWD", price: 6.0, tier: "mid-att" },
+  { name: "Aboukhlal", team: "Morocco", pos: "FWD", price: 5.5, tier: "budget-mid" },
+  // Budget
+  { name: "Suarez (Col)", team: "Colombia", pos: "FWD", price: 5.0, tier: "budget-mid" },
+  { name: "Foster", team: "South Africa", pos: "FWD", price: 4.5, tier: "budget-mid" },
+  { name: "Bensebaini", team: "Algeria", pos: "FWD", price: 4.5, tier: "budget-mid" },
+  { name: "Adams", team: "Scotland", pos: "FWD", price: 5.5, tier: "budget-mid" }
+];
+
+// ============================================================
+// Optimum XI for projection
+// ============================================================
+const OPTIMUM_XI = [
+  // [name, team, pos, price, tier (premium/mid/budget)]
+  { name: "Kobel", team: "Switzerland", pos: "GK", price: 4.7, tier: "gk" },
+  { name: "Laporte", team: "Spain", pos: "DEF", price: 5.5, tier: "premium-def" },
+  { name: "Kimmich", team: "Germany", pos: "DEF", price: 5.5, tier: "premium-def" },
+  { name: "Akanji", team: "Switzerland", pos: "DEF", price: 5.0, tier: "premium-def" },
+  { name: "Lamine Yamal", team: "Spain", pos: "MID", price: 10.0, tier: "premium-att", fitness: "doubt" },
+  { name: "Bruno Fernandes", team: "Portugal", pos: "MID", price: 8.5, tier: "premium-att" },
+  { name: "Musiala", team: "Germany", pos: "MID", price: 8.0, tier: "premium-att", fitness: "doubt" },
+  { name: "De Bruyne", team: "Belgium", pos: "MID", price: 7.5, tier: "mid-att" },
+  { name: "Harry Kane", team: "England", pos: "FWD", price: 10.5, tier: "premium-att" },
+  { name: "Oyarzabal", team: "Spain", pos: "FWD", price: 8.1, tier: "premium-att", isCaptainR1: true },
+  { name: "Trossard", team: "Belgium", pos: "FWD", price: 6.6, tier: "mid-att" }
+];
+
+// xPts lookup by tier and fixture mismatch tier
+const XPTS_TABLE = {
+  "premium-att": { huge: 9.0, big: 7.5, med: 5.5, small: 4.0 },
+  "mid-att":     { huge: 7.0, big: 5.5, med: 4.5, small: 3.5 },
+  "budget-mid":  { huge: 5.0, big: 4.0, med: 3.5, small: 3.0 },
+  "premium-def": { huge: 7.0, big: 5.5, med: 4.0, small: 3.0 },
+  "budget-def":  { huge: 5.5, big: 4.5, med: 3.5, small: 2.5 },
+  "gk":          { huge: 6.5, big: 5.5, med: 4.0, small: 3.0 }
+};
+
+function gapTier(gap) {
+  if (gap >= 60) return "huge";
+  if (gap >= 40) return "big";
+  if (gap >= 20) return "med";
+  return "small";
+}
+
+function getPlayerFixture(player, round) {
+  return FIXTURES.find(f => f.round === round && (f.home === player.team || f.away === player.team));
+}
+
+function projectPlayerPoints(player, round, isCaptain) {
+  const fx = getPlayerFixture(player, round);
+  if (!fx) return { xPts: 0, fx: null, tier: null };
+  const tier = gapTier(fx.gap);
+  let xPts = (XPTS_TABLE[player.tier] || XPTS_TABLE["mid-att"])[tier];
+  if (isCaptain) xPts *= 2;
+  return { xPts: Math.round(xPts * 10) / 10, fx, tier };
+}
+
+function getRoundCaptain(round) {
+  // R1: Oyarzabal (Spain v Cabo Verde, huge gap)
+  // R2: Kane (England v Ghana, gap 70)
+  // R3: Wildcard - assume De Bruyne (Belgium v NZ, huge gap)
+  if (round === 1) return "Oyarzabal";
+  if (round === 2) return "Harry Kane";
+  if (round === 3) return "De Bruyne";
+  return null;
+}
+
+function projectRound(round) {
+  const captain = getRoundCaptain(round);
+  const players = OPTIMUM_XI.map(p => {
+    const isC = p.name === captain;
+    const proj = projectPlayerPoints(p, round, isC);
+    return { ...p, ...proj, isCaptain: isC };
+  });
+  const total = players.reduce((s, p) => s + p.xPts, 0);
+  return { round, players, total: Math.round(total * 10) / 10, captain };
+}
+
+const STORAGE_KEY = "wcfantasy_v6";
+
+function defaultState() {
+  return {
+    picks: JSON.parse(JSON.stringify(DEFAULT_PICKS)),
+    captains: {
+      1: { player: "", points: "", notes: "" },
+      2: { player: "", points: "", notes: "" },
+      3: { player: "", points: "", notes: "" }
+    },
+    boosters: {
+      "Wildcard": { plannedRound: "3", used: false, notes: "Rebuild around R3 mismatches" },
+      "12th Man": { plannedRound: "2", used: false, notes: "Vinicius Jr v Haiti or Kane v Ghana" },
+      "Maximum Captain": { plannedRound: "R16", used: false, notes: "Use when uncertain on captain choice" },
+      "Qualification Booster": { plannedRound: "QF", used: false, notes: "When XI heavy with progressors" },
+      "Mystery Booster": { plannedRound: "TBD", used: false, notes: "Revealed before R32" }
+    },
+    transfers: {
+      r2: { out1: "", in1: "", out2: "", in2: "", notes: "" },
+      r3: { out1: "", in1: "", out2: "", in2: "", notes: "Wildcard round - log all changes" }
+    },
+    actuals: {
+      1: { score: "", rank: "", notes: "" },
+      2: { score: "", rank: "", notes: "" },
+      3: { score: "", rank: "", notes: "" }
+    },
+    mySquad: {
+      players: [],
+      captain: "",
+      viceCaptain: ""
+    },
+    swap: { out: "", in: "" },
+    theme: "light"
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const base = defaultState();
+    // One-time v11 migration: flip default theme from dark to light
+    if (!parsed._v11ThemeMigration) {
+      parsed.theme = "light";
+      parsed._v11ThemeMigration = true;
+    }
+    // Merge nested objects
+    parsed.picks = { ...base.picks, ...(parsed.picks || {}) };
+    parsed.captains = { ...base.captains, ...(parsed.captains || {}) };
+    parsed.boosters = { ...base.boosters, ...(parsed.boosters || {}) };
+    parsed.transfers = { ...base.transfers, ...(parsed.transfers || {}) };
+    parsed.actuals = { ...base.actuals, ...(parsed.actuals || {}) };
+    parsed.mySquad = { ...base.mySquad, ...(parsed.mySquad || {}) };
+    parsed.swap = { ...base.swap, ...(parsed.swap || {}) };
+    return { ...base, ...parsed };
+  } catch (e) {
+    console.error("Load failed", e);
+    return defaultState();
+  }
+}
+
+let state = loadState();
+
+let saveTimer;
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    showSaveStatus();
+  } catch (e) {
+    console.error("Save failed", e);
+  }
+}
+
+function showSaveStatus() {
+  const el = document.getElementById("saveStatus");
+  el.textContent = "Saved";
+  el.classList.add("saved");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { el.textContent = "Auto-saved"; el.classList.remove("saved"); }, 1500);
+}
+
+// ============================================================
+// Rendering helpers
+// ============================================================
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function gapBadge(gap) {
+  if (gap >= 60) return `<span class="gap-badge gap-huge">Gap ${gap}</span>`;
+  if (gap >= 40) return `<span class="gap-badge gap-big">Gap ${gap}</span>`;
+  if (gap >= 20) return `<span class="gap-badge gap-med">Gap ${gap}</span>`;
+  if (gap >= 8)  return `<span class="gap-badge gap-small">Gap ${gap}</span>`;
+  return `<span class="gap-badge gap-tiny">Gap ${gap}</span>`;
+}
+
+function renderFixture(fx) {
+  const picks = state.picks[fx.id] || { attack: "", defence: "" };
+  const homeFDR = teamFDR(fx.away);   // home team's opponent rating
+  const awayFDR = teamFDR(fx.home);   // away team's opponent rating
+  return `
+    <div class="fixture" data-id="${escapeHtml(fx.id)}">
+      <div class="fixture-header">
+        <div class="fixture-teams">
+          ${escapeHtml(fx.home)} <span style="color: var(--muted); font-weight: normal;">(#${fx.homeRank})</span>
+          <span class="${fdrClass(homeFDR)}" title="Difficulty for ${escapeHtml(fx.home)}: FDR ${homeFDR} (vs ${escapeHtml(fx.away)})">${homeFDR}</span>
+          <span style="color: var(--muted); margin: 0 4px;">v</span>
+          ${escapeHtml(fx.away)} <span style="color: var(--muted); font-weight: normal;">(#${fx.awayRank})</span>
+          <span class="${fdrClass(awayFDR)}" title="Difficulty for ${escapeHtml(fx.away)}: FDR ${awayFDR} (vs ${escapeHtml(fx.home)})">${awayFDR}</span>
+        </div>
+        <div>
+          ${gapBadge(fx.gap)}
+          <span class="fixture-meta">Group ${escapeHtml(fx.group)}</span>
+        </div>
+      </div>
+      <div class="fixture-meta">${escapeHtml(fx.bstDate || fx.date)} &middot; <strong style="color: var(--text);">${escapeHtml(fx.bstTime || "TBC")} BST</strong> &middot; ${escapeHtml(fx.venue)} &middot; Favourite: <strong>${escapeHtml(fx.favourite)}</strong></div>
+      <div class="player-section">
+        <div class="player-box">
+          <label class="attack-label">Attack picks</label>
+          <textarea data-fixture="${escapeHtml(fx.id)}" data-field="attack" aria-label="Attack picks for ${escapeHtml(fx.home)} v ${escapeHtml(fx.away)}">${escapeHtml(picks.attack)}</textarea>
+        </div>
+        <div class="player-box">
+          <label class="defence-label">Defence picks</label>
+          <textarea data-fixture="${escapeHtml(fx.id)}" data-field="defence" aria-label="Defence picks for ${escapeHtml(fx.home)} v ${escapeHtml(fx.away)}">${escapeHtml(picks.defence)}</textarea>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRound(round) {
+  const fxs = FIXTURES.filter(f => f.round === round).sort((a,b) => b.gap - a.gap);
+  const container = document.getElementById(`tab-round${round}`);
+  container.innerHTML = `
+    <div class="panel">
+      <h2>Round ${round} fixtures, sorted by ranking gap</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">${fxs.length} matches. Bigger gap means bigger fantasy upside for the favourite. Edit player picks below, changes save automatically.</p>
+      ${fxs.map(renderFixture).join("")}
+    </div>
+  `;
+  container.querySelectorAll("textarea").forEach(ta => {
+    ta.addEventListener("input", (e) => {
+      const id = e.target.dataset.fixture;
+      const field = e.target.dataset.field;
+      if (!state.picks[id]) state.picks[id] = { attack: "", defence: "" };
+      state.picks[id][field] = e.target.value;
+      saveState();
+    });
+  });
+}
+
+function renderFDR() {
+  const container = document.getElementById("tab-fdr");
+
+  // Group teams by group code
+  const teamsByGroup = {};
+  FIXTURES.forEach(f => {
+    if (!teamsByGroup[f.group]) teamsByGroup[f.group] = new Set();
+    teamsByGroup[f.group].add(f.home);
+    teamsByGroup[f.group].add(f.away);
+  });
+  const letters = Object.keys(teamsByGroup).sort();
+
+  // For each team, compute their per-fixture FDRs (opponent's FDR) and average
+  const groupData = letters.map(letter => {
+    const teams = [...teamsByGroup[letter]];
+    const rows = teams.map(team => {
+      const fixtures = FIXTURES
+        .filter(f => f.group === letter && (f.home === team || f.away === team))
+        .sort((a, b) => a.round - b.round);
+      const opps = fixtures.map(f => ({
+        opp: f.home === team ? f.away : f.home,
+        round: f.round,
+      }));
+      const fdrs = opps.map(o => teamFDR(o.opp));
+      const avg = fdrs.reduce((a, b) => a + b, 0) / Math.max(1, fdrs.length);
+      return { team, opps, fdrs, avg, own: teamFDR(team) };
+    });
+    rows.sort((a, b) => a.avg - b.avg);
+    const groupAvg = rows.reduce((a, r) => a + r.avg, 0) / rows.length;
+    return { letter, rows, groupAvg };
+  });
+
+  // Legend
+  const legend = `
+    <div class="fdr-legend">
+      <span class="label">Difficulty:</span>
+      ${[1,2,3,4,5].map(n => `
+        <span class="scale"><span class="fdr ${fdrClass(n).split(' ')[1]}">${n}</span>
+        ${["Very easy","Easy","Medium","Hard","Very hard"][n-1]}</span>
+      `).join("")}
+      <span style="flex:1;"></span>
+      <span class="label" style="font-size:12px;color:var(--muted);">Based on FIFA April 2026 rankings</span>
+    </div>
+  `;
+
+  // At-a-glance — friendliest and toughest groups
+  const groupsByAvg = [...groupData].sort((a,b) => a.groupAvg - b.groupAvg);
+  const easiest = groupsByAvg[0];
+  const toughest = groupsByAvg[groupsByAvg.length - 1];
+
+  // Group cards
+  const grid = groupData.map(g => `
+    <div class="fdr-group-card">
+      <div class="fdr-group-head">
+        <span class="letter">Group ${escapeHtml(g.letter)}</span>
+        <span class="avg">avg ${g.groupAvg.toFixed(1)}</span>
+      </div>
+      ${g.rows.map(r => `
+        <div class="fdr-row">
+          <div class="fdr-team">
+            <span class="name">${escapeHtml(r.team)}</span>
+            <span class="sub">own FDR ${r.own} &middot; #${RANKINGS[r.team] || "?"}</span>
+          </div>
+          <div class="fdr-opps">
+            ${r.opps.map(o => `
+              <span class="${fdrClass(teamFDR(o.opp))}" title="R${o.round} vs ${escapeHtml(o.opp)} (FDR ${teamFDR(o.opp)})">${teamFDR(o.opp)}</span>
+            `).join("")}
+          </div>
+          <span class="fdr-avg-pill" title="Average difficulty of 3 group fixtures">
+            <span class="dot" style="background:${fdrColor(Math.round(r.avg))}"></span>
+            ${r.avg.toFixed(1)}
+          </span>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+
+  // Easiest fixtures across the whole group stage (top 10 from FDR-1 / FDR-2 opponents)
+  const allFixtureRows = [];
+  FIXTURES.forEach(f => {
+    allFixtureRows.push({
+      team: f.home, opp: f.away, round: f.round, group: f.group,
+      fdr: teamFDR(f.away), date: f.bstDate || f.date, time: f.bstTime,
+    });
+    allFixtureRows.push({
+      team: f.away, opp: f.home, round: f.round, group: f.group,
+      fdr: teamFDR(f.home), date: f.bstDate || f.date, time: f.bstTime,
+    });
+  });
+  const easiest10 = [...allFixtureRows].sort((a, b) => a.fdr - b.fdr || RANKINGS[a.team] - RANKINGS[b.team]).slice(0, 12);
+  const hardest10 = [...allFixtureRows].sort((a, b) => b.fdr - a.fdr || RANKINGS[a.team] - RANKINGS[b.team]).slice(0, 12);
+
+  const easiestList = easiest10.map(r => `
+    <div class="fx">
+      <span class="who"><strong>${escapeHtml(r.team)}</strong> v ${escapeHtml(r.opp)}
+        <span class="${fdrClass(r.fdr)}">${r.fdr}</span></span>
+      <span class="when">R${r.round} &middot; Grp ${r.group}</span>
+    </div>
+  `).join("");
+  const hardestList = hardest10.map(r => `
+    <div class="fx">
+      <span class="who"><strong>${escapeHtml(r.team)}</strong> v ${escapeHtml(r.opp)}
+        <span class="${fdrClass(r.fdr)}">${r.fdr}</span></span>
+      <span class="when">R${r.round} &middot; Grp ${r.group}</span>
+    </div>
+  `).join("");
+
+  container.innerHTML = `
+    <div class="panel">
+      <h2>Fixture Difficulty Rating (FDR)</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">
+        Each team's three group-stage opponents, rated 1 (easiest) to 5 (hardest).
+        Lower average means a friendlier draw — useful when picking fantasy captains, defensive blocks,
+        and clean-sheet candidates. Tiers from FIFA April 2026 rankings.
+      </p>
+
+      ${legend}
+
+      <p style="font-size: 13px;">
+        <strong>Friendliest group:</strong> Group ${easiest.letter} (avg ${easiest.groupAvg.toFixed(1)})
+        &middot;
+        <strong>Toughest group:</strong> Group ${toughest.letter} (avg ${toughest.groupAvg.toFixed(1)})
+      </p>
+
+      <div class="fdr-groups-grid">${grid}</div>
+    </div>
+
+    <div class="panel">
+      <h2>Best 12 fantasy fixtures (lowest FDR)</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">
+        These are the prime targets for captaincy and attacking returns — strong squads facing FDR-1 opponents.
+      </p>
+      <div class="fdr-fixture-list">${easiestList}</div>
+    </div>
+
+    <div class="panel">
+      <h2>Toughest 12 fixtures (highest FDR)</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">
+        Heavyweight clashes — avoid for clean sheets, manage captain risk. Often produce upsets too.
+      </p>
+      <div class="fdr-fixture-list">${hardestList}</div>
+    </div>
+
+    ${renderTournamentFDRTable()}
+    ${renderCaptainPicks()}
+    ${renderCleanSheetWatch()}
+  `;
+}
+
+// ============================================================
+// Clean Sheet Watch: per-round defender clean-sheet candidates
+// Score = (team CS rate) × (3 / opponent GF) × 10
+// Higher = stronger defensive record + weaker attacking opponent
+// ============================================================
+function renderCleanSheetWatch() {
+  const byRound = [1, 2, 3].map(round => {
+    const candidates = [];
+    FIXTURES.filter(f => f.round === round).forEach(f => {
+      const homeScore = cleanSheetScore(f.home, f.away);
+      const awayScore = cleanSheetScore(f.away, f.home);
+      if (homeScore !== null) {
+        const tf = teamForm(f.home);
+        candidates.push({
+          team: f.home, opp: f.away, score: homeScore,
+          csRate: (tf.cs / tf.games * 100).toFixed(0),
+          oppGF: teamForm(f.away).gf,
+          oppO25: teamForm(f.away).o25,
+        });
+      }
+      if (awayScore !== null) {
+        const tf = teamForm(f.away);
+        candidates.push({
+          team: f.away, opp: f.home, score: awayScore,
+          csRate: (tf.cs / tf.games * 100).toFixed(0),
+          oppGF: teamForm(f.home).gf,
+          oppO25: teamForm(f.home).o25,
+        });
+      }
+    });
+    candidates.sort((a, b) => b.score - a.score);
+    return { round, top: candidates.slice(0, 8) };
+  });
+
+  const cls = (s) => s >= 12 ? "hi" : s >= 7 ? "med" : s >= 4 ? "" : "lo";
+
+  const card = (r) => `
+    <div class="cs-card">
+      <h3>Round ${r.round} — clean sheet watch</h3>
+      ${r.top.map(c => `
+        <div class="cs-row">
+          <div>
+            <div class="cs-team">${escapeHtml(c.team)}</div>
+            <div class="cs-opp">v ${escapeHtml(c.opp)}</div>
+          </div>
+          <span class="cs-score-pill ${cls(c.score)}" title="Higher is better">${c.score.toFixed(1)}</span>
+          <div class="cs-meta">
+            CS rate ${c.csRate}% &middot; opponent ${c.oppGF.toFixed(1)} GF/90 &middot; opp O2.5 ${c.oppO25}%
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  return `
+    <div class="panel">
+      <h2>Clean Sheet Watch — best defensive blocks by round</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">
+        Score = <strong>(team's CS rate) × (3 / opponent's goals/90)</strong>, scaled to 0–25.
+        Use to pick defenders and goalkeepers most likely to keep a clean sheet. Top 8 per round.
+      </p>
+      <div class="cs-grid">
+        ${byRound.map(card).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// Tournament FDR: all 48 teams ranked by avg of their 3 opponents
+// ============================================================
+function renderTournamentFDRTable() {
+  // Collect every team's three group fixtures
+  const teams = new Set();
+  FIXTURES.forEach(f => { teams.add(f.home); teams.add(f.away); });
+
+  const rows = [...teams].map(team => {
+    const fxs = FIXTURES
+      .filter(f => f.home === team || f.away === team)
+      .filter(f => f.round >= 1 && f.round <= 3)
+      .sort((a, b) => a.round - b.round);
+    const opps = fxs.map(f => ({
+      round: f.round,
+      opp: f.home === team ? f.away : f.home,
+      fdr: teamFDR(f.home === team ? f.away : f.home),
+    }));
+    const avg = opps.reduce((a, o) => a + o.fdr, 0) / Math.max(1, opps.length);
+    return {
+      team,
+      group: (fxs[0] || {}).group || "?",
+      rank: RANKINGS[team] || 99,
+      own: teamFDR(team),
+      opps,
+      avg,
+    };
+  }).sort((a, b) => a.avg - b.avg);
+
+  const roundCell = (o) => `
+    <span class="round-cell">
+      <span class="opp">${escapeHtml(o.opp)}</span>
+      <span class="${fdrClass(o.fdr)}">${o.fdr}</span>
+    </span>
+  `;
+
+  return `
+    <div class="panel">
+      <h2>All 48 teams: tournament FDR (best to worst draw)</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">
+        Every team ranked by the average difficulty of their three group fixtures.
+        Top of the list = friendliest group-stage run.
+      </p>
+      <div style="overflow-x: auto;">
+        <table class="fdr-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Team</th>
+              <th class="num">FIFA</th>
+              <th>Own</th>
+              <th>R1 opponent</th>
+              <th>R2 opponent</th>
+              <th>R3 opponent</th>
+              <th class="num">Avg FDR</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((r, i) => `
+              <tr>
+                <td class="num">${i + 1}</td>
+                <td class="team-cell">
+                  ${escapeHtml(r.team)}
+                  <span class="group-tag">${escapeHtml(r.group)}</span>
+                </td>
+                <td class="num">#${r.rank}</td>
+                <td><span class="${fdrClass(r.own)}">${r.own}</span></td>
+                <td>${r.opps[0] ? roundCell(r.opps[0]) : "—"}</td>
+                <td>${r.opps[1] ? roundCell(r.opps[1]) : "—"}</td>
+                <td>${r.opps[2] ? roundCell(r.opps[2]) : "—"}</td>
+                <td class="num"><strong>${r.avg.toFixed(2)}</strong></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// Captain picks: per-round candidates ranked by
+//   score = team_FDR x (6 - opponent_FDR)
+// max 25 (FDR-5 team v FDR-1 minnow), min 1 (FDR-1 team v FDR-5 elite)
+// ============================================================
+function captainScore(team, opp) {
+  return teamFDR(team) * (6 - teamFDR(opp));
+}
+
+function captainScoreClass(s) {
+  // Composite score (0-30): >=18 elite, >=12 strong, >=7 decent, <7 avoid
+  if (s >= 18) return "hi";
+  if (s >= 12) return "med";
+  if (s >= 7)  return "";
+  return "lo";
+}
+
+function renderCaptainPicks() {
+  const byRound = [1, 2, 3].map(round => {
+    const candidates = [];
+    FIXTURES.filter(f => f.round === round).forEach(f => {
+      const fdrH = captainScore(f.home, f.away);
+      const formH = formCaptainScore(f.home, f.away);
+      const xgH = expGoals(f.home, f.away);
+      const fdrA = captainScore(f.away, f.home);
+      const formA = formCaptainScore(f.away, f.home);
+      const xgA = expGoals(f.away, f.home);
+      candidates.push({
+        team: f.home, opp: f.away, round, group: f.group,
+        fdrScore: fdrH, formScore: formH, xg: xgH,
+        pickHint: state.picks[f.id]?.attack || "",
+      });
+      candidates.push({
+        team: f.away, opp: f.home, round, group: f.group,
+        fdrScore: fdrA, formScore: formA, xg: xgA,
+        pickHint: state.picks[f.id]?.attack || "",
+      });
+    });
+    // Composite rank: 60% form score, 40% FDR score (both normalised)
+    candidates.forEach(c => {
+      c.composite = (c.formScore !== null ? c.formScore : 0) * 0.6
+                  + (c.fdrScore !== null ? c.fdrScore * 1.2 : 0) * 0.4; // scale FDR (max 25 -> ~30)
+    });
+    candidates.sort((a, b) => b.composite - a.composite);
+    return { round, top: candidates.slice(0, 10) };
+  });
+
+  const card = (r) => `
+    <div class="cap-card">
+      <h3>Round ${r.round} — top captain candidates</h3>
+      ${r.top.map(c => {
+        // Match by surname (last word of player name) since pick texts often drop first names.
+        // Normalise both sides so "Martínez" matches "Martinez" etc.
+        const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+        const hintN = c.pickHint ? norm(c.pickHint) : "";
+        const risky = disciplineRisk(c.team).filter(p => {
+          if (!hintN) return false;
+          const surname = p.n.split(' ').pop();   // e.g. "Jude Bellingham" -> "Bellingham"
+          if (surname.length < 4) return false;   // skip very short surnames to avoid noise
+          return hintN.includes(norm(surname)) || hintN.includes(norm(p.n));
+        });
+        return `
+        <div class="cap-row">
+          <div class="matchup">
+            <span class="team">${escapeHtml(c.team)}</span>
+            <span class="${fdrClass(teamFDR(c.team))}">${teamFDR(c.team)}</span>
+            <span class="vs">v</span>
+            <span class="opp">${escapeHtml(c.opp)}</span>
+            <span class="${fdrClass(teamFDR(c.opp))}">${teamFDR(c.opp)}</span>
+          </div>
+          <span class="score-pill ${captainScoreClass(c.composite)}"
+                title="Composite: form ${c.formScore !== null ? c.formScore.toFixed(1) : '?'} (xG ${c.xg !== null ? c.xg.toFixed(2) : '?'}) + FDR ${c.fdrScore}">
+            ${Math.round(c.composite)}
+          </span>
+          ${c.formScore !== null ? `
+            <div class="cap-meta">
+              xG&nbsp;${c.xg.toFixed(2)} &middot; form&nbsp;${c.formScore.toFixed(1)} &middot; FDR&nbsp;${c.fdrScore}
+            </div>
+          ` : ""}
+          ${c.pickHint ? `<div class="pick-hint"><strong>Pick from:</strong> ${escapeHtml(c.pickHint)}</div>` : ""}
+          ${risky.length ? `
+            <div class="pick-warn">
+              <strong>⚠ Booking risk:</strong>
+              ${risky.map(p => `<span title="yc ${p.y}/90 · fouls ${p.f}/90 (risk ${p.r.toFixed(1)})">${escapeHtml(p.n)} (${p.p})</span>`).join(", ")}
+            </div>
+          ` : ""}
+        </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  return `
+    <div class="panel">
+      <h2>Best captain picks by round</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">
+        Composite score blends <strong>form</strong> (expected goals × shot quality, from ScoutingStats team rates)
+        with the FDR-based score. xG = (team GF/90 + opponent GA/90) / 2.
+        Booking-risk warnings flag suggested attackers with high yellow-card rates.
+      </p>
+      <div class="cap-grid">
+        ${byRound.map(card).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// Team Form tab — sortable table of all 48 teams' form rates
+// ============================================================
+let _formSortKey = "gpg";
+let _formSortDir = "desc";
+
+function renderTeamForm() {
+  const container = document.getElementById("tab-form");
+
+  const teams = Object.keys(TEAM_FORM).map(name => ({
+    name,
+    rank: RANKINGS[name] || 99,
+    ...TEAM_FORM[name],
+  }));
+
+  const k = _formSortKey, dir = _formSortDir === "asc" ? 1 : -1;
+  teams.sort((a, b) => {
+    if (k === "name") return dir * a.name.localeCompare(b.name);
+    if (k === "tier") {
+      const ord = { target: 0, mid: 1, fade: 2 };
+      return dir * ((ord[a.tier] ?? 9) - (ord[b.tier] ?? 9));
+    }
+    return dir * ((a[k] ?? 0) - (b[k] ?? 0));
+  });
+
+  const cols = [
+    { k: "name",  label: "Team",          numeric: false, def: false },
+    { k: "rank",  label: "FIFA",          numeric: true,  def: false },
+    { k: "tier",  label: "Tier",          numeric: false, def: false },
+    { k: "gf",    label: "GF/90",         numeric: true,  def: false },
+    { k: "ga",    label: "GA/90",         numeric: true,  def: false },
+    { k: "gpg",   label: "Goals/g",       numeric: true,  def: true  },
+    { k: "o25",   label: "O 2.5%",        numeric: true,  def: false },
+    { k: "btts",  label: "BTTS%",         numeric: true,  def: false },
+    { k: "cs",    label: "CS",            numeric: true,  def: false },
+    { k: "sh",    label: "Shots",         numeric: true,  def: false },
+    { k: "sot",   label: "SoT",           numeric: true,  def: false },
+    { k: "ca",    label: "Cards/90",      numeric: true,  def: false },
+    { k: "fm",    label: "Fouls/90",      numeric: true,  def: false },
+    { k: "games", label: "Games",         numeric: true,  def: false },
+  ];
+
+  const sortClass = (key) => key === _formSortKey
+    ? (_formSortDir === "asc" ? "sort-asc" : "sort-desc")
+    : "";
+
+  container.innerHTML = `
+    <div class="panel">
+      <h2>Team Form — ScoutingStats 2026 ratings</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-top: 0;">
+        All per 90 minutes (except clean sheets, games, percentages).
+        Click any column header to sort. <strong>Tier</strong>: target = high attack-output sides,
+        fade = lower-output. <strong>Combustible</strong>: 2.0+ cards against and 12.5+ fouls made.
+      </p>
+      <div style="overflow-x:auto;">
+        <table class="form-table">
+          <thead>
+            <tr>
+              ${cols.map(c => `
+                <th class="${c.numeric ? 'num' : ''} ${sortClass(c.k)}" data-form-sort="${c.k}">
+                  ${c.label}
+                </th>
+              `).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${teams.map(t => `
+              <tr>
+                <td><strong>${escapeHtml(t.name)}</strong>${t.combustible ? '<span class="form-combust" title="Combustible: 2.0+ cards against and 12.5+ fouls made">🔥</span>' : ''}</td>
+                <td class="num">#${t.rank}</td>
+                <td><span class="form-tier ${t.tier}">${t.tier}</span></td>
+                <td class="num">${t.gf.toFixed(2)}</td>
+                <td class="num">${t.ga.toFixed(2)}</td>
+                <td class="num"><strong>${t.gpg.toFixed(2)}</strong></td>
+                <td class="num">${t.o25}%</td>
+                <td class="num">${t.btts}%</td>
+                <td class="num">${t.cs}</td>
+                <td class="num">${t.sh.toFixed(1)}</td>
+                <td class="num">${t.sot.toFixed(1)}</td>
+                <td class="num">${t.ca.toFixed(2)}</td>
+                <td class="num">${t.fm.toFixed(2)}</td>
+                <td class="num">${t.games}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // Wire sort headers
+  container.querySelectorAll("th[data-form-sort]").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.formSort;
+      if (_formSortKey === key) {
+        _formSortDir = _formSortDir === "asc" ? "desc" : "asc";
+      } else {
+        _formSortKey = key;
+        _formSortDir = "desc";
+      }
+      renderTeamForm();
+    });
+  });
+}
+
+function renderOverview() {
+  const huge = FIXTURES.filter(f => f.gap >= 60).length;
+  const big = FIXTURES.filter(f => f.gap >= 40 && f.gap < 60).length;
+  const med = FIXTURES.filter(f => f.gap >= 20 && f.gap < 40).length;
+  const small = FIXTURES.filter(f => f.gap < 20).length;
+  const r3Huge = FIXTURES.filter(f => f.round === 3 && f.gap >= 60).length;
+
+  document.getElementById("summaryGrid").innerHTML = `
+    <div class="summary-card"><div class="label">Huge gap (60+)</div><div class="value">${huge}</div></div>
+    <div class="summary-card"><div class="label">Big gap (40-59)</div><div class="value">${big}</div></div>
+    <div class="summary-card"><div class="label">Medium gap (20-39)</div><div class="value">${med}</div></div>
+    <div class="summary-card"><div class="label">Close (under 20)</div><div class="value">${small}</div></div>
+    <div class="summary-card"><div class="label">Round 3 huge gaps</div><div class="value">${r3Huge}</div></div>
+  `;
+
+  renderTopMismatchTable("gap");
+  
+  // Wire sort buttons once
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    if (btn.dataset.wired) return;
+    btn.addEventListener("click", e => {
+      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+      e.target.classList.add("active");
+      renderTopMismatchTable(e.target.dataset.sort);
+    });
+    btn.dataset.wired = "true";
+  });
+}
+
+function renderTopMismatchTable(sortMode) {
+  // Always pick top 15 by gap first, then sort by chosen mode for display
+  const top15 = [...FIXTURES].sort((a, b) => b.gap - a.gap).slice(0, 15);
+  
+  // For coverage view, get my squad
+  const mySquad = state.mySquad.players || [];
+  
+  // Find which of my players play in each fixture
+  function getPlayersInFixture(fx) {
+    return mySquad.filter(p => p.team === fx.home || p.team === fx.away).map(p => ({
+      ...p,
+      forFavourite: p.team === fx.favourite
+    }));
+  }
+  
+  let display;
+  if (sortMode === "round") {
+    // Sort by round, then by BST date+time chronologically
+    const sortKey = (f) => {
+      const d = f.bstDate || f.date || "";
+      const m = d.match(/(\d+)\s+Jun/);
+      const day = m ? parseInt(m[1], 10) : 0;
+      const t = (f.bstTime || "00:00").replace(":", "");
+      return day * 10000 + parseInt(t, 10);
+    };
+    display = [...top15].sort((a, b) => {
+      if (a.round !== b.round) return a.round - b.round;
+      return sortKey(a) - sortKey(b);
+    });
+  } else if (sortMode === "coverage") {
+    // Sort by number of my players involved (descending), then by gap
+    display = [...top15].sort((a, b) => {
+      const aCount = getPlayersInFixture(a).length;
+      const bCount = getPlayersInFixture(b).length;
+      if (aCount !== bCount) return bCount - aCount;
+      return b.gap - a.gap;
+    });
+  } else {
+    display = top15;
+  }
+  
+  const tbody = document.querySelector("#topMismatchTable tbody");
+  
+  // Update header to include "My players" column in coverage mode
+  const thead = document.querySelector("#topMismatchTable thead");
+  if (sortMode === "coverage") {
+    thead.innerHTML = `<tr><th>#</th><th>Round</th><th>Fixture</th><th>Gap</th><th>BST kick-off</th><th>My players</th></tr>`;
+  } else {
+    thead.innerHTML = `<tr><th>#</th><th>Round</th><th>Fixture</th><th>Gap</th><th>BST kick-off</th></tr>`;
+  }
+  
+  let lastRound = null;
+  let rows = "";
+  display.forEach((f, i) => {
+    if (sortMode === "round" && f.round !== lastRound) {
+      rows += `<tr style="background: var(--panel-2);"><td colspan="5" style="font-weight: 600; color: var(--teal); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Round ${f.round}</td></tr>`;
+      lastRound = f.round;
+    }
+    
+    if (sortMode === "coverage") {
+      const players = getPlayersInFixture(f);
+      const favPlayers = players.filter(p => p.forFavourite);
+      const underPlayers = players.filter(p => !p.forFavourite);
+      let coverCell;
+      if (players.length === 0) {
+        coverCell = `<span style="color: var(--amber); font-size: 12px;">No coverage</span>`;
+      } else {
+        const favTxt = favPlayers.length ? `<span style="color: var(--green);">${favPlayers.map(p => escapeHtml(p.name)).join(", ")}</span>` : "";
+        const underTxt = underPlayers.length ? `<span style="color: var(--red); font-size: 11px;">${underPlayers.map(p => escapeHtml(p.name) + " (underdog)").join(", ")}</span>` : "";
+        coverCell = favTxt + (favTxt && underTxt ? "<br>" : "") + underTxt;
+      }
+      // Row background based on coverage strength
+      const bgStyle = players.length === 0 ? "background: rgba(243, 156, 18, 0.08);" : (favPlayers.length >= 2 ? "background: rgba(46, 204, 113, 0.08);" : "");
+      rows += `
+        <tr style="${bgStyle}">
+          <td>${i+1}</td>
+          <td>R${f.round}</td>
+          <td><strong>${escapeHtml(f.favourite)}</strong> v ${escapeHtml(f.underdog)}</td>
+          <td>${f.gap}</td>
+          <td>${escapeHtml(f.bstDate || f.date)}<br><span style="color: var(--muted); font-size: 11px;">${escapeHtml(f.bstTime || "TBC")} BST</span></td>
+          <td style="font-size: 12px;">${coverCell}</td>
+        </tr>
+      `;
+    } else {
+      rows += `
+        <tr>
+          <td>${i+1}</td>
+          <td>R${f.round}</td>
+          <td><strong>${escapeHtml(f.favourite)}</strong> v ${escapeHtml(f.underdog)}</td>
+          <td>${f.gap}</td>
+          <td>${escapeHtml(f.bstDate || f.date)}<br><span style="color: var(--muted); font-size: 11px;">${escapeHtml(f.bstTime || "TBC")} BST</span></td>
+        </tr>
+      `;
+    }
+  });
+  tbody.innerHTML = rows;
+  
+  // Coverage summary line below table
+  const existingSummary = document.getElementById("coverageSummary");
+  if (existingSummary) existingSummary.remove();
+  if (sortMode === "coverage") {
+    const totalCovered = display.filter(f => getPlayersInFixture(f).filter(p => p.forFavourite).length > 0).length;
+    const noCover = display.filter(f => getPlayersInFixture(f).length === 0).length;
+    const summary = document.createElement("p");
+    summary.id = "coverageSummary";
+    summary.style.cssText = "color: var(--muted); font-size: 12px; margin-top: 12px;";
+    summary.innerHTML = `You have favourite-side coverage in <strong style="color: var(--green);">${totalCovered}/15</strong> top mismatches. <strong style="color: var(--amber);">${noCover}</strong> fixtures with no coverage at all. Green rows show fixtures where you have 2+ players on the favoured side.`;
+    document.querySelector("#topMismatchTable").parentNode.appendChild(summary);
+  }
+}
+
+function renderCaptains() {
+  const container = document.getElementById("captainLog");
+  container.innerHTML = [1,2,3].map(r => {
+    const c = state.captains[r] || { player: "", points: "", notes: "" };
+    return `
+      <div class="captain-row">
+        <div class="round-label">Round ${r}</div>
+        <input type="text" placeholder="Captain (e.g. Lamine Yamal)" data-round="${r}" data-field="player" value="${escapeHtml(c.player)}" aria-label="Round ${r} captain">
+        <textarea placeholder="Notes, opponent, reasoning" data-round="${r}" data-field="notes" aria-label="Round ${r} notes">${escapeHtml(c.notes)}</textarea>
+        <input type="number" class="points-input" placeholder="Pts" data-round="${r}" data-field="points" value="${escapeHtml(c.points)}" aria-label="Round ${r} points">
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll("input, textarea").forEach(el => {
+    el.addEventListener("input", e => {
+      const r = e.target.dataset.round;
+      const f = e.target.dataset.field;
+      if (!state.captains[r]) state.captains[r] = { player: "", points: "", notes: "" };
+      state.captains[r][f] = e.target.value;
+      saveState();
+    });
+  });
+}
+
+function renderBoosters() {
+  const container = document.getElementById("boosterPlanner");
+  const rounds = ["1", "2", "3", "R32", "R16", "QF", "SF", "Final"];
+  const boosterDescriptions = {
+    "Wildcard": "Unlimited free transfers in one round (not R32)",
+    "12th Man": "Extra non-squad player counts, no budget or per-nation limit",
+    "Maximum Captain": "Your highest scoring XI player auto-gets armband",
+    "Qualification Booster": "+2 pts to all starting XI who progress (R32+)",
+    "Mystery Booster": "Revealed before R32"
+  };
+
+  container.innerHTML = Object.entries(state.boosters).map(([name, data]) => `
+    <div class="captain-row" style="grid-template-columns: 1fr 100px 100px 1fr 30px;">
+      <div>
+        <div class="round-label">${escapeHtml(name)}</div>
+        <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">${escapeHtml(boosterDescriptions[name] || "")}</div>
+      </div>
+      <select data-booster="${escapeHtml(name)}" data-field="plannedRound" aria-label="Planned round for ${escapeHtml(name)}" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+        ${rounds.map(r => `<option value="${r}" ${data.plannedRound === r ? "selected" : ""}>R${r}</option>`).join("")}
+        <option value="TBD" ${data.plannedRound === "TBD" ? "selected" : ""}>TBD</option>
+      </select>
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+        <input type="checkbox" data-booster="${escapeHtml(name)}" data-field="used" ${data.used ? "checked" : ""} aria-label="${escapeHtml(name)} used">
+        Used
+      </label>
+      <textarea data-booster="${escapeHtml(name)}" data-field="notes" placeholder="Notes" aria-label="${escapeHtml(name)} notes" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px; resize: vertical; min-height: 36px;">${escapeHtml(data.notes)}</textarea>
+      <div></div>
+    </div>
+  `).join("");
+
+  container.querySelectorAll("select, input[type='checkbox'], textarea").forEach(el => {
+    el.addEventListener("change", e => {
+      const name = e.target.dataset.booster;
+      const field = e.target.dataset.field;
+      const value = field === "used" ? e.target.checked : e.target.value;
+      if (!state.boosters[name]) state.boosters[name] = { plannedRound: "", used: false, notes: "" };
+      state.boosters[name][field] = value;
+      saveState();
+    });
+    if (el.tagName === "TEXTAREA") {
+      el.addEventListener("input", e => {
+        const name = e.target.dataset.booster;
+        const field = e.target.dataset.field;
+        state.boosters[name][field] = e.target.value;
+        saveState();
+      });
+    }
+  });
+}
+
+function renderTransferPlanner() {
+  const container = document.getElementById("transferPlanner");
+  const rounds = [
+    { key: "r2", label: "Round 2 transfers", deadline: "17 Jun", subtitle: "2 free, extra cost -3 pts each" },
+    { key: "r3", label: "Round 3 transfers", deadline: "23 Jun", subtitle: "2 free + 1 rollover possible. Or use Wildcard for unlimited." }
+  ];
+
+  container.innerHTML = rounds.map(r => {
+    const t = state.transfers[r.key] || { out1: "", in1: "", out2: "", in2: "", notes: "" };
+    return `
+      <div class="panel" style="background: var(--panel-2); margin-bottom: 12px;">
+        <h3 style="margin-top: 0;">${escapeHtml(r.label)} <span style="color: var(--muted); font-weight: normal; font-size: 12px;">(deadline ${escapeHtml(r.deadline)})</span></h3>
+        <p style="color: var(--muted); font-size: 12px; margin-top: 0;">${escapeHtml(r.subtitle)}</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div>
+            <label style="display: block; font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Transfer 1 OUT</label>
+            <input type="text" data-round="${r.key}" data-field="out1" value="${escapeHtml(t.out1)}" placeholder="Player out" aria-label="${escapeHtml(r.label)} transfer 1 out" style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 11px; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Transfer 1 IN</label>
+            <input type="text" data-round="${r.key}" data-field="in1" value="${escapeHtml(t.in1)}" placeholder="Player in" aria-label="${escapeHtml(r.label)} transfer 1 in" style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Transfer 2 OUT</label>
+            <input type="text" data-round="${r.key}" data-field="out2" value="${escapeHtml(t.out2)}" placeholder="Player out (optional)" aria-label="${escapeHtml(r.label)} transfer 2 out" style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 11px; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Transfer 2 IN</label>
+            <input type="text" data-round="${r.key}" data-field="in2" value="${escapeHtml(t.in2)}" placeholder="Player in (optional)" aria-label="${escapeHtml(r.label)} transfer 2 in" style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+          </div>
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Rationale</label>
+          <textarea data-round="${r.key}" data-field="notes" placeholder="Why these changes" aria-label="${escapeHtml(r.label)} rationale" style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px; resize: vertical; min-height: 50px;">${escapeHtml(t.notes)}</textarea>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll("input[type='text'], textarea").forEach(el => {
+    el.addEventListener("input", e => {
+      const r = e.target.dataset.round;
+      const f = e.target.dataset.field;
+      if (!state.transfers[r]) state.transfers[r] = { out1: "", in1: "", out2: "", in2: "", notes: "" };
+      state.transfers[r][f] = e.target.value;
+      saveState();
+    });
+  });
+}
+
+function renderMySquad() {
+  const sq = state.mySquad.players;
+  const totalCost = sq.reduce((s, p) => s + p.price, 0);
+  const bank = 100 - totalCost;
+  
+  // Count by position
+  const byPos = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+  sq.forEach(p => byPos[p.pos]++);
+  const posLimits = { GK: 2, DEF: 5, MID: 5, FWD: 3 };
+  const posOk = byPos.GK === 2 && byPos.DEF === 5 && byPos.MID === 5 && byPos.FWD === 3;
+  
+  // Count by nation
+  const byTeam = {};
+  sq.forEach(p => byTeam[p.team] = (byTeam[p.team] || 0) + 1);
+  const overLimit = Object.values(byTeam).filter(n => n > 3).length;
+
+  // Summary cards
+  document.getElementById("squadSummary").innerHTML = `
+    <div class="summary-card"><div class="label">Squad size</div><div class="value" style="color: ${sq.length === 15 ? 'var(--green)' : 'var(--amber)'};">${sq.length}/15</div></div>
+    <div class="summary-card"><div class="label">Total cost</div><div class="value" style="color: ${totalCost <= 100 ? 'var(--green)' : 'var(--red)'};">$${totalCost.toFixed(1)}m</div></div>
+    <div class="summary-card"><div class="label">Bank</div><div class="value" style="color: ${bank >= 0 ? 'var(--green)' : 'var(--red)'};">$${bank.toFixed(1)}m</div></div>
+    <div class="summary-card"><div class="label">Positions</div><div class="value" style="color: ${posOk ? 'var(--green)' : 'var(--amber)'};">${byPos.GK}-${byPos.DEF}-${byPos.MID}-${byPos.FWD}</div></div>
+    <div class="summary-card"><div class="label">Nation limits</div><div class="value" style="color: ${overLimit === 0 ? 'var(--green)' : 'var(--red)'};">${overLimit === 0 ? 'OK' : overLimit + ' over'}</div></div>
+  `;
+
+  // Squad list grouped by position
+  const positions = ["GK", "DEF", "MID", "FWD"];
+  let html = "";
+  positions.forEach(pos => {
+    const players = sq.filter(p => p.pos === pos);
+    if (players.length === 0) return;
+    html += `<h3>${pos} (${players.length}/${posLimits[pos]})</h3>`;
+    html += `<table style="margin-bottom: 12px;"><thead><tr><th>Player</th><th>Team</th><th>Price</th><th>Role</th><th></th></tr></thead><tbody>`;
+    players.forEach(p => {
+      const isC = state.mySquad.captain === p.name;
+      const isVC = state.mySquad.viceCaptain === p.name;
+      html += `
+        <tr>
+          <td><strong>${escapeHtml(p.name)}</strong></td>
+          <td>${escapeHtml(p.team)} ${(byTeam[p.team] || 0) > 3 ? '<span style="color: var(--red); font-size: 11px;">(over limit)</span>' : ''}</td>
+          <td>$${p.price.toFixed(1)}m</td>
+          <td>
+            <button class="btn captain-btn" data-name="${escapeHtml(p.name)}" data-role="C" style="padding: 2px 8px; font-size: 11px; ${isC ? 'background: var(--gold); color: #221800;' : ''}" aria-label="Set ${escapeHtml(p.name)} as captain">C</button>
+            <button class="btn captain-btn" data-name="${escapeHtml(p.name)}" data-role="VC" style="padding: 2px 8px; font-size: 11px; ${isVC ? 'background: var(--blue); color: white;' : ''}" aria-label="Set ${escapeHtml(p.name)} as vice captain">VC</button>
+          </td>
+          <td><button class="btn btn-danger remove-btn" data-name="${escapeHtml(p.name)}" style="padding: 2px 8px; font-size: 11px;" aria-label="Remove ${escapeHtml(p.name)}">Remove</button></td>
+        </tr>
+      `;
+    });
+    html += `</tbody></table>`;
+  });
+
+  if (sq.length === 0) {
+    html = `<p style="color: var(--muted); font-size: 13px;">Your squad is empty. Add 15 players from the pool below (2 GK, 5 DEF, 5 MID, 3 FWD).</p>`;
+  }
+
+  document.getElementById("squadList").innerHTML = html;
+
+  // Wire up captain and remove buttons
+  document.querySelectorAll(".captain-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const name = e.target.dataset.name;
+      const role = e.target.dataset.role;
+      if (role === "C") {
+        state.mySquad.captain = state.mySquad.captain === name ? "" : name;
+        if (state.mySquad.viceCaptain === name) state.mySquad.viceCaptain = "";
+      } else {
+        state.mySquad.viceCaptain = state.mySquad.viceCaptain === name ? "" : name;
+        if (state.mySquad.captain === name) state.mySquad.captain = "";
+      }
+      saveState();
+      renderMySquad();
+    });
+  });
+
+  document.querySelectorAll(".remove-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const name = e.target.dataset.name;
+      state.mySquad.players = state.mySquad.players.filter(p => p.name !== name);
+      if (state.mySquad.captain === name) state.mySquad.captain = "";
+      if (state.mySquad.viceCaptain === name) state.mySquad.viceCaptain = "";
+      saveState();
+      renderMySquad();
+      renderPlayerPool();
+      renderSwapCalculator();
+    });
+  });
+
+  renderPlayerPool();
+  renderSwapCalculator();
+  renderMySquadProjection();
+  renderFitnessWatch();
+  wireSuggesterUI();
+  // Refresh coverage view if it's active
+  const activeSort = document.querySelector(".sort-btn.active");
+  if (activeSort) renderTopMismatchTable(activeSort.dataset.sort);
+  
+  // Wire prefill and clear (once)
+  const prefillBtn = document.getElementById("prefillSquad");
+  if (prefillBtn && !prefillBtn.dataset.wired) {
+    prefillBtn.addEventListener("click", () => {
+      if (state.mySquad.players.length > 0 && !confirm("Replace current squad with the prefilled one?")) return;
+      const squad = [
+        "Kobel", "Rangel", 
+        "Joao Cancelo", "Laporte", "Tah", "Gimenez", "Robertson",
+        "Lamine Yamal", "Bruno Fernandes", "Musiala", "Pedri", "Tielemans",
+        "Messi", "Havertz", "Darwin Nunez"
+      ];
+      state.mySquad.players = squad.map(name => PLAYERS.find(p => p.name === name)).filter(Boolean);
+      state.mySquad.captain = "Lamine Yamal";
+      state.mySquad.viceCaptain = "Bruno Fernandes";
+      saveState();
+      renderMySquad();
+    });
+    prefillBtn.dataset.wired = "true";
+  }
+  const clearBtn = document.getElementById("clearSquad");
+  if (clearBtn && !clearBtn.dataset.wired) {
+    clearBtn.addEventListener("click", () => {
+      if (state.mySquad.players.length === 0) return;
+      if (!confirm("Clear all players from your squad?")) return;
+      state.mySquad.players = [];
+      state.mySquad.captain = "";
+      state.mySquad.viceCaptain = "";
+      saveState();
+      renderMySquad();
+    });
+    clearBtn.dataset.wired = "true";
+  }
+}
+
+function renderPlayerPool() {
+  const search = document.getElementById("playerSearch")?.value.toLowerCase() || "";
+  const posFilter = document.getElementById("positionFilter")?.value || "";
+  const sortBy = document.getElementById("sortFilter")?.value || "price-desc";
+  const inSquad = new Set(state.mySquad.players.map(p => p.name));
+
+  let pool = PLAYERS.filter(p => !inSquad.has(p.name));
+  if (search) pool = pool.filter(p => p.name.toLowerCase().includes(search) || p.team.toLowerCase().includes(search));
+  if (posFilter) pool = pool.filter(p => p.pos === posFilter);
+
+  if (sortBy === "price-desc") pool.sort((a, b) => b.price - a.price);
+  else if (sortBy === "price-asc") pool.sort((a, b) => a.price - b.price);
+  else if (sortBy === "name") pool.sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortBy === "team") pool.sort((a, b) => a.team.localeCompare(b.team));
+
+  const sq = state.mySquad.players;
+  const totalCost = sq.reduce((s, p) => s + p.price, 0);
+  const byPos = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+  sq.forEach(p => byPos[p.pos]++);
+  const posLimits = { GK: 2, DEF: 5, MID: 5, FWD: 3 };
+  const byTeam = {};
+  sq.forEach(p => byTeam[p.team] = (byTeam[p.team] || 0) + 1);
+
+  const limit = Math.min(pool.length, 80);
+  let html = `<table><thead><tr><th>Player</th><th>Team</th><th>Pos</th><th>Price</th><th></th></tr></thead><tbody>`;
+  pool.slice(0, limit).forEach(p => {
+    const wouldExceedPos = byPos[p.pos] >= posLimits[p.pos];
+    const wouldExceedBudget = (totalCost + p.price) > 100;
+    const wouldExceedNation = (byTeam[p.team] || 0) >= 3;
+    const disabled = wouldExceedPos || wouldExceedBudget || wouldExceedNation;
+    let warnText = "";
+    if (wouldExceedBudget) warnText = "over budget";
+    else if (wouldExceedPos) warnText = "pos full";
+    else if (wouldExceedNation) warnText = "nation max";
+    html += `
+      <tr>
+        <td>${escapeHtml(p.name)}</td>
+        <td>${escapeHtml(p.team)}</td>
+        <td>${escapeHtml(p.pos)}</td>
+        <td>$${p.price.toFixed(1)}m</td>
+        <td>
+          <button class="btn add-btn" data-name="${escapeHtml(p.name)}" style="padding: 2px 8px; font-size: 11px; ${disabled ? 'opacity: 0.4; cursor: not-allowed;' : ''}" ${disabled ? 'disabled' : ''} aria-label="Add ${escapeHtml(p.name)}">${disabled ? warnText : "Add"}</button>
+        </td>
+      </tr>
+    `;
+  });
+  html += `</tbody></table>`;
+  if (pool.length > limit) html += `<p style="color: var(--muted); font-size: 12px; margin-top: 8px;">Showing top ${limit} of ${pool.length}. Refine search to narrow.</p>`;
+
+  document.getElementById("playerPool").innerHTML = html;
+
+  document.querySelectorAll(".add-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const name = e.target.dataset.name;
+      const player = PLAYERS.find(p => p.name === name);
+      if (!player) return;
+      state.mySquad.players.push(player);
+      saveState();
+      renderMySquad();
+    });
+  });
+}
+
+// Wire up filter listeners (called once)
+function wireSquadFilters() {
+  ["playerSearch", "positionFilter", "sortFilter"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.wired) {
+      el.addEventListener("input", () => renderPlayerPool());
+      el.addEventListener("change", () => renderPlayerPool());
+      el.dataset.wired = "true";
+    }
+  });
+}
+
+function renderSwapCalculator() {
+  const container = document.getElementById("swapCalculator");
+  const sq = state.mySquad.players;
+  if (sq.length === 0) {
+    container.innerHTML = `<p style="color: var(--muted); font-size: 13px;">Add players to your squad first.</p>`;
+    return;
+  }
+
+  // Get available swap-in candidates (same position as the swap-out)
+  const swapOut = sq.find(p => p.name === state.swap.out);
+  const swapIn = swapOut ? PLAYERS.find(p => p.name === state.swap.in && p.pos === swapOut.pos) : null;
+  const inSquadNames = new Set(sq.map(p => p.name));
+
+  const inOptions = swapOut ? PLAYERS.filter(p => p.pos === swapOut.pos && !inSquadNames.has(p.name)).sort((a, b) => b.price - a.price) : [];
+
+  // Compute impact
+  let impactHtml = "";
+  if (swapOut && swapIn) {
+    const totalCost = sq.reduce((s, p) => s + p.price, 0);
+    const newCost = totalCost - swapOut.price + swapIn.price;
+    const newBank = 100 - newCost;
+    
+    // Check nation limit
+    const byTeam = {};
+    sq.forEach(p => byTeam[p.team] = (byTeam[p.team] || 0) + 1);
+    byTeam[swapOut.team]--;
+    const newNationCount = (byTeam[swapIn.team] || 0) + 1;
+    const nationOk = newNationCount <= 3;
+
+    // xPts delta across 3 rounds
+    let outTotal = 0, inTotal = 0;
+    for (let r = 1; r <= 3; r++) {
+      const outProj = projectPlayerPoints(swapOut, r, false);
+      const inProj = projectPlayerPoints(swapIn, r, false);
+      outTotal += outProj.xPts;
+      inTotal += inProj.xPts;
+    }
+    const delta = Math.round((inTotal - outTotal) * 10) / 10;
+
+    impactHtml = `
+      <div style="margin-top: 12px; padding: 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;">
+        <h3 style="margin-top: 0;">Impact</h3>
+        <table>
+          <thead><tr><th></th><th>OUT: ${escapeHtml(swapOut.name)}</th><th>IN: ${escapeHtml(swapIn.name)}</th><th>Delta</th></tr></thead>
+          <tbody>
+            <tr><td>Team</td><td>${escapeHtml(swapOut.team)}</td><td>${escapeHtml(swapIn.team)}</td><td>-</td></tr>
+            <tr><td>Price</td><td>$${swapOut.price.toFixed(1)}m</td><td>$${swapIn.price.toFixed(1)}m</td><td>${(swapIn.price - swapOut.price >= 0 ? "+" : "") + (swapIn.price - swapOut.price).toFixed(1)}m</td></tr>
+            <tr><td>3-round xPts</td><td>${outTotal.toFixed(1)}</td><td>${inTotal.toFixed(1)}</td><td style="color: ${delta >= 0 ? 'var(--green)' : 'var(--amber)'}; font-weight: 600;">${delta >= 0 ? "+" : ""}${delta}</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 10px; font-size: 13px;">
+          New squad cost: <strong>$${newCost.toFixed(1)}m</strong>, bank: <strong style="color: ${newBank >= 0 ? 'var(--green)' : 'var(--red)'};">$${newBank.toFixed(1)}m</strong><br>
+          ${escapeHtml(swapIn.team)} count after swap: <strong style="color: ${nationOk ? 'var(--green)' : 'var(--red)'};">${newNationCount}/3</strong>
+        </p>
+        ${newBank < 0 ? '<p style="color: var(--red); font-size: 13px;">Over budget. Not allowed.</p>' : ''}
+        ${!nationOk ? '<p style="color: var(--red); font-size: 13px;">Exceeds nation limit. Not allowed.</p>' : ''}
+        ${(newBank >= 0 && nationOk) ? `<button class="btn btn-primary" id="applySwap" style="margin-top: 8px;" aria-label="Apply swap">Apply this swap</button>` : ''}
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div>
+        <label style="display: block; font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Swap OUT</label>
+        <select id="swapOut" aria-label="Select player to swap out" style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+          <option value="">-- pick a player from your squad --</option>
+          ${sq.map(p => `<option value="${escapeHtml(p.name)}" ${state.swap.out === p.name ? "selected" : ""}>${escapeHtml(p.name)} (${escapeHtml(p.pos)}, ${escapeHtml(p.team)}, $${p.price.toFixed(1)}m)</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label style="display: block; font-size: 11px; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Swap IN</label>
+        <select id="swapIn" aria-label="Select player to swap in" ${!swapOut ? "disabled" : ""} style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px;">
+          <option value="">${swapOut ? "-- pick a " + swapOut.pos + " --" : "-- pick OUT first --"}</option>
+          ${inOptions.map(p => `<option value="${escapeHtml(p.name)}" ${state.swap.in === p.name ? "selected" : ""}>${escapeHtml(p.name)} (${escapeHtml(p.team)}, $${p.price.toFixed(1)}m)</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    ${impactHtml}
+  `;
+
+  document.getElementById("swapOut").addEventListener("change", e => {
+    state.swap.out = e.target.value;
+    state.swap.in = "";
+    saveState();
+    renderSwapCalculator();
+  });
+  const inEl = document.getElementById("swapIn");
+  if (inEl) inEl.addEventListener("change", e => {
+    state.swap.in = e.target.value;
+    saveState();
+    renderSwapCalculator();
+  });
+  const applyBtn = document.getElementById("applySwap");
+  if (applyBtn) applyBtn.addEventListener("click", () => {
+    state.mySquad.players = state.mySquad.players.filter(p => p.name !== swapOut.name);
+    state.mySquad.players.push(swapIn);
+    if (state.mySquad.captain === swapOut.name) state.mySquad.captain = "";
+    if (state.mySquad.viceCaptain === swapOut.name) state.mySquad.viceCaptain = "";
+    state.swap.out = "";
+    state.swap.in = "";
+    saveState();
+    renderMySquad();
+  });
+}
+
+function renderMySquadProjection() {
+  const container = document.getElementById("mySquadProjection");
+  const sq = state.mySquad.players;
+  if (sq.length !== 15) {
+    container.innerHTML = `<p style="color: var(--muted); font-size: 13px;">Complete your squad (15 players) to see projection.</p>`;
+    return;
+  }
+
+  const captain = state.mySquad.captain;
+  // Pick starting XI: assume best 11 by xPts each round, but for simplicity we use a 3-4-3 by default
+  // For now project ALL 15 players and let user assume top 11 score
+  
+  const rounds = [1, 2, 3];
+  const roundData = rounds.map(round => {
+    const players = sq.map(p => {
+      const isC = p.name === captain;
+      const proj = projectPlayerPoints(p, round, isC);
+      return { ...p, ...proj, isCaptain: isC };
+    });
+    // Pick top 11 by xPts ensuring valid formation: 1 GK, 3+ DEF, 3+ MID, 1+ FWD
+    players.sort((a, b) => b.xPts - a.xPts);
+    const starting = [];
+    const counts = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+    const minPos = { GK: 1, DEF: 3, MID: 3, FWD: 1 };
+    const maxPos = { GK: 1, DEF: 5, MID: 5, FWD: 3 };
+    // First pass: minimum per position
+    for (const pos of ["GK", "DEF", "MID", "FWD"]) {
+      const candidates = players.filter(p => p.pos === pos && !starting.includes(p));
+      for (let i = 0; i < minPos[pos] && i < candidates.length; i++) {
+        starting.push(candidates[i]);
+        counts[pos]++;
+      }
+    }
+    // Fill rest by top xPts respecting max
+    const remaining = players.filter(p => !starting.includes(p));
+    for (const p of remaining) {
+      if (starting.length >= 11) break;
+      if (counts[p.pos] < maxPos[p.pos]) {
+        starting.push(p);
+        counts[p.pos]++;
+      }
+    }
+    const total = starting.reduce((s, p) => s + p.xPts, 0);
+    return { round, starting, total: Math.round(total * 10) / 10, captain };
+  });
+
+  // Optimum projections for comparison
+  const optR1 = projectRound(1);
+  const optR2 = projectRound(2);
+  const optR3 = projectRound(3);
+  const optTotal = optR1.total + optR2.total + optR3.total;
+  const myTotal = roundData.reduce((s, r) => s + r.total, 0);
+  const delta = Math.round((myTotal - optTotal) * 10) / 10;
+  const par = 216;
+  const vsPar = Math.round((myTotal - par) * 10) / 10;
+
+  container.innerHTML = `
+    <div class="summary-grid">
+      <div class="summary-card"><div class="label">My R1</div><div class="value">${roundData[0].total}</div></div>
+      <div class="summary-card"><div class="label">My R2</div><div class="value">${roundData[1].total}</div></div>
+      <div class="summary-card"><div class="label">My R3</div><div class="value">${roundData[2].total}</div></div>
+      <div class="summary-card"><div class="label">My total</div><div class="value">${Math.round(myTotal * 10) / 10}</div></div>
+      <div class="summary-card"><div class="label">vs Top 10k par</div><div class="value" style="color: ${vsPar >= 0 ? 'var(--green)' : 'var(--amber)'};">${vsPar >= 0 ? '+' : ''}${vsPar}</div></div>
+    </div>
+    <p style="color: var(--muted); font-size: 13px; margin-top: 12px;">
+      <strong>vs Optimum XI:</strong> Optimum total ${Math.round(optTotal * 10) / 10} xPts, your total ${Math.round(myTotal * 10) / 10} xPts (delta <span style="color: ${delta >= 0 ? 'var(--green)' : 'var(--amber)'};">${delta >= 0 ? '+' : ''}${delta}</span>)
+    </p>
+    <p style="color: var(--muted); font-size: 12px;">Note: starting XI auto-selected from your 15 by highest xPts in each round (subject to valid formation). Captain doubles.</p>
+  `;
+}
+
+function calculateSquadXPts(squad, captainName) {
+  // Sum best XI across 3 rounds with captain doubled
+  let total = 0;
+  for (let round = 1; round <= 3; round++) {
+    const ranked = squad.map(p => {
+      const isC = p.name === captainName;
+      const proj = projectPlayerPoints(p, round, isC);
+      return { ...p, ...proj, isCaptain: isC };
+    });
+    ranked.sort((a, b) => b.xPts - a.xPts);
+    const starting = [];
+    const counts = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+    const minPos = { GK: 1, DEF: 3, MID: 3, FWD: 1 };
+    const maxPos = { GK: 1, DEF: 5, MID: 5, FWD: 3 };
+    for (const pos of ["GK", "DEF", "MID", "FWD"]) {
+      const candidates = ranked.filter(p => p.pos === pos);
+      for (let i = 0; i < minPos[pos] && i < candidates.length; i++) {
+        starting.push(candidates[i]);
+        counts[pos]++;
+      }
+    }
+    for (const p of ranked) {
+      if (starting.length >= 11) break;
+      if (!starting.includes(p) && counts[p.pos] < maxPos[p.pos]) {
+        starting.push(p);
+        counts[p.pos]++;
+      }
+    }
+    total += starting.reduce((s, p) => s + p.xPts, 0);
+  }
+  return Math.round(total * 10) / 10;
+}
+
+function calculateCoverage(squad) {
+  // Number of top 15 mismatches where squad has at least one favourite-side player
+  const top15 = [...FIXTURES].sort((a, b) => b.gap - a.gap).slice(0, 15);
+  let covered = 0;
+  top15.forEach(f => {
+    const hasPlayer = squad.some(p => p.team === f.favourite);
+    if (hasPlayer) covered++;
+  });
+  return covered;
+}
+
+function findBestSwaps(metric) {
+  const sq = state.mySquad.players;
+  if (sq.length !== 15) return [];
+  
+  const captain = state.mySquad.captain || "";
+  const baseScore = metric === "coverage" ? calculateCoverage(sq) : calculateSquadXPts(sq, captain);
+  const baseCost = sq.reduce((s, p) => s + p.price, 0);
+  const baseBank = 100 - baseCost;
+  
+  // Build per-nation count
+  const byTeamBase = {};
+  sq.forEach(p => byTeamBase[p.team] = (byTeamBase[p.team] || 0) + 1);
+  
+  const inSquadNames = new Set(sq.map(p => p.name));
+  const results = [];
+  
+  for (const outPlayer of sq) {
+    // Candidates: same position, not in squad, not flagged OUT
+    const candidates = PLAYERS.filter(p =>
+      p.pos === outPlayer.pos &&
+      !inSquadNames.has(p.name) &&
+      p.fitness !== "OUT"
+    );
+    
+    for (const inPlayer of candidates) {
+      // Budget check
+      const newCost = baseCost - outPlayer.price + inPlayer.price;
+      if (newCost > 100) continue;
+      
+      // Nation check
+      const newTeamCount = (byTeamBase[inPlayer.team] || 0) + (inPlayer.team === outPlayer.team ? 0 : 1);
+      if (newTeamCount > 3) continue;
+      
+      // Build hypothetical squad
+      const newSquad = sq.map(p => p.name === outPlayer.name ? inPlayer : p);
+      
+      // If captain was the swapped-out player, fall back to vice captain
+      let newCaptain = captain;
+      if (captain === outPlayer.name) newCaptain = state.mySquad.viceCaptain || "";
+      
+      let newScore;
+      if (metric === "coverage") {
+        newScore = calculateCoverage(newSquad);
+      } else {
+        newScore = calculateSquadXPts(newSquad, newCaptain);
+      }
+      
+      const delta = Math.round((newScore - baseScore) * 10) / 10;
+      if (delta > 0) {
+        results.push({
+          out: outPlayer,
+          in: inPlayer,
+          delta,
+          newScore,
+          newCost: Math.round(newCost * 10) / 10,
+          newBank: Math.round((100 - newCost) * 10) / 10
+        });
+      }
+    }
+  }
+  
+  // Sort by delta descending
+  results.sort((a, b) => b.delta - a.delta);
+  return { results: results.slice(0, 10), baseScore, baseBank };
+}
+
+function renderSuggester(metric) {
+  const container = document.getElementById("suggesterResults");
+  if (!container) return;
+  
+  const sq = state.mySquad.players;
+  if (sq.length !== 15) {
+    container.innerHTML = `<p style="color: var(--muted); font-size: 13px;">Complete your squad (15 players) before running the suggester.</p>`;
+    return;
+  }
+  
+  container.innerHTML = `<p style="color: var(--muted); font-size: 13px;">Calculating, this may take a moment...</p>`;
+  
+  // Defer to next tick so UI updates
+  setTimeout(() => {
+    const { results, baseScore, baseBank } = findBestSwaps(metric);
+    
+    if (results.length === 0) {
+      container.innerHTML = `
+        <p style="color: var(--green); font-size: 13px;">No improving single swaps found at metric "${escapeHtml(metric)}". Your squad is already optimal for this measure within budget and nation limits.</p>
+        <p style="color: var(--muted); font-size: 12px;">Base score: ${baseScore} ${metric === "coverage" ? "/ 15" : "xPts"}. Bank: $${baseBank.toFixed(1)}m.</p>
+      `;
+      return;
+    }
+    
+    const unit = metric === "coverage" ? "fixtures" : "xPts";
+    let html = `
+      <p style="color: var(--muted); font-size: 12px;">Current squad ${metric === "coverage" ? "covers" : "projects"} <strong>${baseScore}</strong> ${unit}. Top suggestions below.</p>
+      <table>
+        <thead>
+          <tr><th>#</th><th>OUT</th><th>IN</th><th>Cost change</th><th>${metric === "coverage" ? "Cover gain" : "xPts gain"}</th><th></th></tr>
+        </thead>
+        <tbody>
+    `;
+    
+    results.forEach((r, i) => {
+      const costChange = (r.in.price - r.out.price);
+      const costStr = (costChange >= 0 ? "+" : "") + costChange.toFixed(1) + "m";
+      const fitnessFlag = r.in.fitness ? ` <span style="color: var(--amber); font-size: 11px;">(${escapeHtml(r.in.fitness)})</span>` : "";
+      html += `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${escapeHtml(r.out.name)} <span style="color: var(--muted); font-size: 11px;">(${escapeHtml(r.out.team)}, $${r.out.price.toFixed(1)}m)</span></td>
+          <td><strong>${escapeHtml(r.in.name)}</strong>${fitnessFlag} <span style="color: var(--muted); font-size: 11px;">(${escapeHtml(r.in.team)}, $${r.in.price.toFixed(1)}m)</span></td>
+          <td style="color: ${costChange > 0 ? 'var(--amber)' : 'var(--green)'};">${costStr}</td>
+          <td style="color: var(--green); font-weight: 600;">+${r.delta}</td>
+          <td><button class="btn apply-suggest-btn" data-out="${escapeHtml(r.out.name)}" data-in="${escapeHtml(r.in.name)}" style="padding: 4px 10px; font-size: 11px;" aria-label="Apply swap ${escapeHtml(r.out.name)} for ${escapeHtml(r.in.name)}">Apply</button></td>
+        </tr>
+      `;
+    });
+    html += `</tbody></table>`;
+    html += `<p style="color: var(--muted); font-size: 11px; margin-top: 8px;">Suggestions exclude players flagged OUT. Doubts and watch-list players are included but tagged. Captain doubles in xPts mode; if you swap the captain, vice captain takes over.</p>`;
+    
+    container.innerHTML = html;
+    
+    // Wire apply buttons
+    container.querySelectorAll(".apply-suggest-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const outName = e.target.dataset.out;
+        const inName = e.target.dataset.in;
+        const inPlayer = PLAYERS.find(p => p.name === inName);
+        if (!inPlayer) return;
+        state.mySquad.players = state.mySquad.players.filter(p => p.name !== outName);
+        state.mySquad.players.push(inPlayer);
+        if (state.mySquad.captain === outName) state.mySquad.captain = "";
+        if (state.mySquad.viceCaptain === outName) state.mySquad.viceCaptain = "";
+        saveState();
+        renderMySquad();
+      });
+    });
+  }, 10);
+}
+
+function wireSuggesterUI() {
+  // Active button toggling
+  document.querySelectorAll(".suggest-btn").forEach(btn => {
+    if (btn.dataset.wired) return;
+    btn.addEventListener("click", e => {
+      document.querySelectorAll(".suggest-btn").forEach(b => b.classList.remove("active"));
+      e.target.classList.add("active");
+    });
+    btn.dataset.wired = "true";
+  });
+  
+  // Run button
+  const runBtn = document.getElementById("runSuggester");
+  if (runBtn && !runBtn.dataset.wired) {
+    runBtn.addEventListener("click", () => {
+      const active = document.querySelector(".suggest-btn.active");
+      const metric = active ? active.dataset.metric : "xpts";
+      renderSuggester(metric);
+    });
+    runBtn.dataset.wired = "true";
+  }
+}
+
+function renderFitnessWatch() {
+  const el = document.getElementById("myFitnessWatch");
+  if (!el) return;
+  const sq = state.mySquad.players;
+  
+  if (sq.length === 0) {
+    el.innerHTML = `<p style="color: var(--muted); font-size: 13px;">Load your squad in the My Squad tab first.</p>`;
+    return;
+  }
+
+  const concerns = sq.filter(p => p.fitness);
+  if (concerns.length === 0) {
+    el.innerHTML = `<p style="color: var(--green); font-size: 13px;">No fitness concerns in your current squad as of 2 June 2026.</p>`;
+    return;
+  }
+
+  const fitnessNotes = {
+    "Lamine Yamal": "Hamstring injury, no game since 22 April. Coach confirmed fit for R1. Match fitness uncertain — possible 60min cap.",
+    "Musiala": "Returning from broken leg and dislocated ankle. Mostly off the bench at Bayern. Should start but minutes managed.",
+    "Messi": "Hamstring fatigue from 25 May. Two warm-up games before tournament. Expect to start v Algeria.",
+    "De Bruyne": "Ongoing fitness issues, but named in Belgium squad. Watch team news before R1 deadline.",
+    "Rodrygo": "OUT - torn ACL and meniscus. Do not pick.",
+    "Mitoma": "OUT - injury. Not in Japan's squad.",
+    "Hakimi": "Thigh injury. Doubt for early rounds.",
+    "Romero": "MCL tear. Doubt for group stages."
+  };
+
+  let html = `<table><thead><tr><th>Player</th><th>Status</th><th>Notes</th></tr></thead><tbody>`;
+  concerns.forEach(p => {
+    const status = p.fitness;
+    const color = status === "OUT" ? "var(--red)" : status === "doubt" ? "var(--amber)" : "var(--blue)";
+    html += `
+      <tr>
+        <td><strong>${escapeHtml(p.name)}</strong> (${escapeHtml(p.team)})</td>
+        <td style="color: ${color}; font-weight: 600; text-transform: uppercase;">${escapeHtml(status)}</td>
+        <td style="font-size: 12px;">${escapeHtml(fitnessNotes[p.name] || "Watch team news")}</td>
+      </tr>
+    `;
+  });
+  html += `</tbody></table>`;
+  el.innerHTML = html;
+}
+
+function renderProjection() {
+  const r1 = projectRound(1);
+  const r2 = projectRound(2);
+  const r3 = projectRound(3);
+  const totalProjected = r1.total + r2.total + r3.total;
+
+  // Calculate vs par (top 10k threshold is ~216 for group stage)
+  const par = 216;
+  const vsPar = Math.round((totalProjected - par) * 10) / 10;
+
+  document.getElementById("projectionSummary").innerHTML = `
+    <div class="summary-card"><div class="label">R1 projected</div><div class="value">${r1.total}</div></div>
+    <div class="summary-card"><div class="label">R2 projected</div><div class="value">${r2.total}</div></div>
+    <div class="summary-card"><div class="label">R3 projected</div><div class="value">${r3.total}</div></div>
+    <div class="summary-card"><div class="label">Group total</div><div class="value">${Math.round(totalProjected * 10) / 10}</div></div>
+    <div class="summary-card"><div class="label">vs Top 10k par</div><div class="value" style="color: ${vsPar >= 0 ? 'var(--green)' : 'var(--amber)'};">${vsPar >= 0 ? '+' : ''}${vsPar}</div></div>
+  `;
+
+  const renderRoundBreakdown = (proj) => {
+    return `
+      <details ${proj.round === 1 ? "open" : ""}>
+        <summary>Round ${proj.round}: ${proj.total} xPts (Captain: ${escapeHtml(proj.captain)})</summary>
+        <div>
+          <table>
+            <thead><tr><th>Player</th><th>Team</th><th>Pos</th><th>Fixture</th><th>Gap</th><th>xPts</th></tr></thead>
+            <tbody>
+              ${proj.players.map(p => `
+                <tr style="${p.isCaptain ? 'background: var(--panel-2);' : ''}">
+                  <td>${escapeHtml(p.name)}${p.isCaptain ? ' <span style="color: var(--amber); font-size: 11px; font-weight: 600;">(C)</span>' : ''}</td>
+                  <td>${escapeHtml(p.team)}</td>
+                  <td>${escapeHtml(p.pos)}</td>
+                  <td>${p.fx ? `v ${escapeHtml(p.fx.home === p.team ? p.fx.away : p.fx.home)}` : "no fixture"}</td>
+                  <td>${p.fx ? p.fx.gap : "-"}</td>
+                  <td><strong>${p.xPts}</strong></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    `;
+  };
+
+  document.getElementById("projectionRounds").innerHTML = 
+    renderRoundBreakdown(r1) + renderRoundBreakdown(r2) + renderRoundBreakdown(r3);
+
+  // Actual tracker
+  const projectedByRound = { 1: r1.total, 2: r2.total, 3: r3.total };
+  const tracker = document.getElementById("actualTracker");
+  tracker.innerHTML = `
+    <table>
+      <thead>
+        <tr><th>Round</th><th>Projected</th><th>Actual score</th><th>Global rank</th><th>Variance</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        ${[1,2,3].map(r => {
+          const a = state.actuals[r] || { score: "", rank: "", notes: "" };
+          const proj = projectedByRound[r];
+          const variance = a.score ? Math.round((parseFloat(a.score) - proj) * 10) / 10 : "";
+          const varColor = variance === "" ? "var(--muted)" : variance >= 0 ? "var(--green)" : "var(--amber)";
+          return `
+            <tr>
+              <td><strong>R${r}</strong></td>
+              <td>${proj}</td>
+              <td><input type="number" data-round="${r}" data-field="score" value="${escapeHtml(a.score)}" placeholder="0" aria-label="R${r} actual score" style="width: 70px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-family: inherit; font-size: 13px; text-align: right;"></td>
+              <td><input type="text" data-round="${r}" data-field="rank" value="${escapeHtml(a.rank)}" placeholder="e.g. 250k" aria-label="R${r} global rank" style="width: 100px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-family: inherit; font-size: 13px;"></td>
+              <td style="color: ${varColor}; font-weight: 600;">${variance === "" ? "-" : (variance >= 0 ? "+" : "") + variance}</td>
+              <td><input type="text" data-round="${r}" data-field="notes" value="${escapeHtml(a.notes)}" placeholder="What went right/wrong" aria-label="R${r} notes" style="width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-family: inherit; font-size: 13px;"></td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
+
+  tracker.querySelectorAll("input").forEach(el => {
+    el.addEventListener("input", e => {
+      const r = e.target.dataset.round;
+      const f = e.target.dataset.field;
+      if (!state.actuals[r]) state.actuals[r] = { score: "", rank: "", notes: "" };
+      state.actuals[r][f] = e.target.value;
+      saveState();
+      // Re-render to update variance
+      if (f === "score") renderProjection();
+    });
+  });
+}
+
+function renderStrategy() {
+  // Defence stack plan: top 3 mismatches per round
+  const stackHtml = [1,2,3].map(r => {
+    const top3 = FIXTURES.filter(f => f.round === r).sort((a,b) => b.gap - a.gap).slice(0, 3);
+    return `
+      <details ${r === 1 ? "open" : ""}>
+        <summary>Round ${r} top 3 clean sheet bets</summary>
+        <div>
+          ${top3.map(f => `
+            <p><strong>${escapeHtml(f.favourite)}</strong> v ${escapeHtml(f.underdog)} (gap ${f.gap}, ${escapeHtml(f.bstDate || f.date)} ${escapeHtml(f.bstTime || "")} BST)<br>
+            <span style="color: var(--muted); font-size: 12px;">Stack ${escapeHtml(f.favourite)} keeper and 2-3 defenders.</span></p>
+          `).join("")}
+        </div>
+      </details>
+    `;
+  }).join("");
+  document.getElementById("defenceStackPlan").innerHTML = stackHtml;
+
+  // Squad spine: count mismatches per team where gap >= 30
+  const teamMismatches = {};
+  FIXTURES.forEach(f => {
+    if (f.gap >= 30) {
+      if (!teamMismatches[f.favourite]) teamMismatches[f.favourite] = { count: 0, fixtures: [] };
+      teamMismatches[f.favourite].count++;
+      teamMismatches[f.favourite].fixtures.push(`R${f.round} v ${f.underdog} (gap ${f.gap})`);
+    }
+  });
+  const sortedTeams = Object.entries(teamMismatches)
+    .filter(([_, v]) => v.count >= 2)
+    .sort((a, b) => b[1].count - a[1].count || b[1].fixtures.length - a[1].fixtures.length);
+  
+  document.getElementById("spineRecommendation").innerHTML = `
+    <table>
+      <thead><tr><th>Team</th><th>Mismatches</th><th>Fixtures (gap ≥ 30)</th></tr></thead>
+      <tbody>
+        ${sortedTeams.map(([team, data]) => `
+          <tr>
+            <td><strong>${escapeHtml(team)}</strong></td>
+            <td>${data.count}</td>
+            <td style="font-size: 12px;">${data.fixtures.map(escapeHtml).join("<br>")}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+// ============================================================
+// Tabs
+// ============================================================
+function switchTab(name) {
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll("nav.tabs button").forEach(el => el.classList.remove("active"));
+  const tab = document.getElementById(`tab-${name}`);
+  const btn = document.querySelector(`nav.tabs button[data-tab="${name}"]`);
+  if (tab) tab.classList.add("active");
+  if (btn) btn.classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll("nav.tabs button").forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+// ============================================================
+// Theme toggle
+// ============================================================
+function applyTheme() {
+  const root = document.documentElement;
+  if (state.theme === "dark") {
+    root.style.setProperty("--bg", "#161922");
+    root.style.setProperty("--panel", "#1d2130");
+    root.style.setProperty("--panel-2", "#252a3d");
+    root.style.setProperty("--border", "#343a52");
+    root.style.setProperty("--text", "#e5e8f0");
+    root.style.setProperty("--muted", "#929aae");
+    root.style.setProperty("--teal", "#1eb585");
+    root.style.setProperty("--shadow", "0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1)");
+    document.getElementById("themeToggle").textContent = "Light mode";
+  } else {
+    // Light theme (matches root CSS defaults)
+    root.style.setProperty("--bg", "#f8f9fb");
+    root.style.setProperty("--panel", "#ffffff");
+    root.style.setProperty("--panel-2", "#f1f3f7");
+    root.style.setProperty("--border", "#e3e6ee");
+    root.style.setProperty("--text", "#2a2d3a");
+    root.style.setProperty("--muted", "#6b7385");
+    root.style.setProperty("--teal", "#0a8f6b");
+    root.style.setProperty("--shadow", "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)");
+    document.getElementById("themeToggle").textContent = "Dark mode";
+  }
+}
+
+document.getElementById("themeToggle").addEventListener("click", () => {
+  state.theme = state.theme === "light" ? "dark" : "light";
+  applyTheme();
+  saveState();
+});
+
+// ============================================================
+// Export / Import / Reset
+// ============================================================
+document.getElementById("exportJson").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `wc-fantasy-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("importJson").addEventListener("click", () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.picks && data.captains) {
+          state = { ...defaultState(), ...data };
+          saveState();
+          renderAll();
+          alert("Imported successfully");
+        } else {
+          alert("Invalid file format");
+        }
+      } catch (err) {
+        alert("Could not parse file");
+      }
+    };
+    reader.readAsText(file);
+  });
+  input.click();
+});
+
+document.getElementById("resetAll").addEventListener("click", () => {
+  if (confirm("Reset all data? This clears your picks and captain log.")) {
+    state = defaultState();
+    saveState();
+    renderAll();
+  }
+});
+
+// ============================================================
+// Init
+// ============================================================
+function renderAll() {
+  renderOverview();
+  renderFDR();
+  renderTeamForm();
+  renderRound(1);
+  renderRound(2);
+  renderRound(3);
+  renderCaptains();
+  renderBoosters();
+  renderTransferPlanner();
+  renderProjection();
+  renderMySquad();
+  renderFitnessWatch();
+  wireSquadFilters();
+  renderStrategy();
+  applyTheme();
+}
+
+renderAll();
+</script>
+
+</body>
+</html>

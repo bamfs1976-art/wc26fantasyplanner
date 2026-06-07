@@ -1,0 +1,13 @@
+# Local previews / Claude tooling
+.claude/
+.playwright-mcp/
+.tmp-*
+
+# OS noise
+.DS_Store
+Thumbs.db
+*.swp
+
+# Editors
+.vscode/
+.idea/
