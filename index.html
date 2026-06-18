@@ -903,11 +903,21 @@
         <p><strong>Avoid captaining:</strong> Anyone in France v Senegal, Brazil v Morocco or England v Croatia. Too tight.</p>
       </div>
     </details>
-    <details>
+    <details open>
       <summary>Round 2 captain options</summary>
       <div>
         <p><strong>Top pick:</strong> Vinicius Junior or Rodrygo (Brazil v Haiti, gap 77). Biggest mismatch of round 2.</p>
         <p><strong>Alternatives:</strong> Harry Kane (England v Ghana, gap 70), Cristiano Ronaldo (Portugal v Uzbekistan, gap 45).</p>
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0;">
+        <p><strong>MD2 plan (post-MD1 review — 78 pts):</strong></p>
+        <ul style="margin: 6px 0 0 18px; font-size: 13px;">
+          <li><strong>Lesson from MD1:</strong> captain returned only 6 (Bruno Fernandes) while Messi (19) and Kane (13) went un-captained. Captaining Messi would have made it ~97. Put the armband on a premium attacker with the softest fixture, every round.</li>
+          <li><strong>Captain MD2: Harry Kane (C)</strong> — England v Ghana (opp rank 74, FDR 1) is the softest fixture in this squad and Kane is in form.</li>
+          <li><strong>Vice-captain</strong> on another easy fixture: Oyarzabal (Spain v Saudi Arabia, FDR 1) or Raphinha (Brazil v Haiti, FDR 1). Keep the armband chain off Argentina.</li>
+          <li><strong>Avoid captaining into Argentina v Austria</strong> (opp rank 23, FDR 3) — the only awkward fixture in the squad. Messi is a hold, not an armband, this round.</li>
+          <li><strong>Transfers: hold (save the FT).</strong> 9 of 11 starters face FDR-1/2 opponents — no fixture reason to take a hit. Raphinha, Valverde and Oyarzabal all blanked MD1 but have smash fixtures; don't sell low. Bank the transfer toward MD3 (Spain–Uruguay, Argentina v Jordan).</li>
+          <li><strong>Bench/lineup:</strong> 8 pts were left on the bench in MD1 (Mac Allister) and Tagliafico didn't play (DNP). Confirm Tagliafico's MD2 start before lock; keep Mac Allister first sub.</li>
+        </ul>
       </div>
     </details>
     <details>
@@ -1607,8 +1617,8 @@ function defaultState() {
   return {
     picks: JSON.parse(JSON.stringify(DEFAULT_PICKS)),
     captains: {
-      1: { player: "", points: "", notes: "" },
-      2: { player: "", points: "", notes: "" },
+      1: { player: "Bruno Fernandes", points: "6", notes: "Portugal v DR Congo. Underperformed (3 doubled). Messi (19) and Kane (13) played un-captained — captaining Messi would have made ~97. Lesson: armband on the premium attacker with the softest fixture." },
+      2: { player: "Harry Kane", points: "", notes: "England v Ghana (opp rank 74, FDR 1) — softest fixture in squad, in form. VC: Oyarzabal (Spain v Saudi) or Raphinha (Brazil v Haiti). Avoid armband on Argentina v Austria (FDR 3)." },
       3: { player: "", points: "", notes: "" }
     },
     boosters: {
@@ -1619,11 +1629,11 @@ function defaultState() {
       "Mystery Booster": { plannedRound: "TBD", used: false, notes: "Revealed before R32" }
     },
     transfers: {
-      r2: { out1: "", in1: "", out2: "", in2: "", notes: "" },
+      r2: { out1: "", in1: "", out2: "", in2: "", notes: "Hold — save the free transfer. 9 of 11 starters face FDR-1/2 opponents in MD2; no fixture reason to take a hit. Bank the FT toward MD3 (Spain-Uruguay, Argentina v Jordan)." },
       r3: { out1: "", in1: "", out2: "", in2: "", notes: "Wildcard round - log all changes" }
     },
     actuals: {
-      1: { score: "", rank: "", notes: "" },
+      1: { score: "78", rank: "", notes: "Solid opener. Big miss was captaincy (Bruno 6 vs Messi 19 uncaptained) and 8 pts left on the bench (Mac Allister)." },
       2: { score: "", rank: "", notes: "" },
       3: { score: "", rank: "", notes: "" }
     },
