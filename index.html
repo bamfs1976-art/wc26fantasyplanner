@@ -931,6 +931,44 @@
   </div>
 
   <div class="panel">
+    <h2>Round of 32 — the actual draw</h2>
+    <p style="color: var(--muted); font-size: 13px;">Group stage complete (27 Jun 2026). All 16 ties below, sorted by mismatch size (biggest first) using FIFA April 2026 ranks. Pairings final; some dates/venues provisional.</p>
+    <div id="r32Draw"></div>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 6px;"><strong>R16 collisions to plan for:</strong> the Spain v Austria winner meets the Portugal v Croatia winner; the France v Sweden winner meets the Germany v Paraguay winner. Don't double-invest in two teams that knock each other out.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Your R32 squad — read &amp; moves</h2>
+    <p style="color: var(--muted); font-size: 13px;">Based on the squad as of the R32 deadline. Unlimited transfers this round — all of the below are free.</p>
+    <details open>
+      <summary>🔴 Must-do moves</summary>
+      <div>
+        <ul style="margin: 6px 0 0 18px; font-size: 13px;">
+          <li><strong>Transfer OUT Valverde</strong> — Uruguay were eliminated in the group stage. He scores 0. Free transfer, non-negotiable.</li>
+          <li><strong>START Messi and Muñoz — they're wasted on your bench.</strong> Argentina v Cabo Verde (gap 66) and Colombia v Ghana (gap 61) are the <em>two biggest mismatches in the entire round</em>. Both should be in your XI, not benched.</li>
+          <li><strong>Trim the triple-Morocco stack.</strong> Morocco drew Netherlands (ranks 8 v 7 — a coin-flip, Morocco the slight underdog). Three players on a 50/50 knockout tie is high-risk; cut 1-2 to free room for the Messi/Muñoz starters.</li>
+        </ul>
+      </div>
+    </details>
+    <details open>
+      <summary>🟡 Captaincy</summary>
+      <div>
+        <p style="font-size: 13px;"><strong>Messi (Argentina v Cabo Verde, gap 66)</strong> is the standout — an even bigger mismatch than <strong>Kane (England v DR Congo, gap 42)</strong>. Both elite; captain Messi if you trust his minutes, Kane as the safe fallback.</p>
+      </div>
+    </details>
+    <details open>
+      <summary>🟢 Holds and the R16 trap</summary>
+      <div>
+        <ul style="margin: 6px 0 0 18px; font-size: 13px;">
+          <li><strong>Kane (Eng v DR Congo), Brazil's Raphinha (v Japan)</strong> — strong holds.</li>
+          <li><strong>Spain (Laporte/Oyarzabal) and Portugal (Bruno) are on a collision course</strong> — both win-and-they-meet in R16, so one knocks the other out. Fine to hold both for R32, but don't build your R16 plan around keeping both.</li>
+          <li><strong>Qualification Booster fits perfectly here:</strong> rebuild to an XI stacked with England, Argentina, Colombia, Brazil, Spain — heavy favourites likely to progress — and bank the +2s.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <div class="panel">
     <h2>Round of 32 transfers</h2>
     <p style="color: var(--muted); font-size: 13px;">The knockout transition. This is the single most important transfer window of the tournament.</p>
     <details open>
@@ -1350,6 +1388,47 @@ FIXTURES.forEach(f => {
   f.underdog = f.homeRank < f.awayRank ? f.away : f.home;
   f.id = `${f.group}-R${f.round}-${f.home}-${f.away}`.replace(/\s+/g, "_");
 });
+
+// ============================================================
+// Round of 32 — actual draw (group stage complete, 27 Jun 2026)
+// Pairings are final; some dates/venues per press reports are provisional.
+// Sourced from olympics.com / Sky Sports / SI / FOX bracket coverage.
+// ============================================================
+const R32_FIXTURES = [
+  { home: "South Africa", away: "Canada", date: "28 Jun", venue: "Los Angeles (SoFi)" },
+  { home: "Brazil", away: "Japan", date: "29 Jun", venue: "Houston (NRG)" },
+  { home: "Germany", away: "Paraguay", date: "29 Jun", venue: "Boston (Gillette)" },
+  { home: "Netherlands", away: "Morocco", date: "29 Jun", venue: "Monterrey (BBVA)" },
+  { home: "Ivory Coast", away: "Norway", date: "30 Jun", venue: "Dallas (AT&T)" },
+  { home: "France", away: "Sweden", date: "", venue: "New York/NJ (MetLife)" },
+  { home: "Mexico", away: "Ecuador", date: "", venue: "Mexico City (Azteca)" },
+  { home: "England", away: "DR Congo", date: "", venue: "Atlanta (Mercedes-Benz)" },
+  { home: "Belgium", away: "Senegal", date: "", venue: "Seattle (Lumen)" },
+  { home: "USA", away: "Bosnia and Herzegovina", date: "", venue: "SF Bay (Levi's)" },
+  { home: "Spain", away: "Austria", date: "", venue: "Los Angeles (SoFi)" },
+  { home: "Portugal", away: "Croatia", date: "", venue: "Toronto (BMO)" },
+  { home: "Switzerland", away: "Algeria", date: "", venue: "" },
+  { home: "Australia", away: "Egypt", date: "", venue: "" },
+  { home: "Argentina", away: "Cabo Verde", date: "", venue: "" },
+  { home: "Colombia", away: "Ghana", date: "", venue: "" }
+];
+
+R32_FIXTURES.forEach(f => {
+  f.round = 32;
+  f.homeRank = RANKINGS[f.home] || 99;
+  f.awayRank = RANKINGS[f.away] || 99;
+  f.gap = Math.abs(f.homeRank - f.awayRank);
+  f.favourite = f.homeRank < f.awayRank ? f.home : f.away;
+  f.underdog = f.homeRank < f.awayRank ? f.away : f.home;
+  // Mismatch tier for clean-sheet / captain targeting
+  f.tier = f.gap >= 40 ? "Huge" : f.gap >= 20 ? "Big" : f.gap >= 8 ? "Moderate" : "Tight";
+});
+
+// Confirmed Round-of-16 collisions (fixed bracket — these R32 winners meet in R16):
+const R16_COLLISIONS = [
+  ["Spain v Austria", "Portugal v Croatia"],
+  ["France v Sweden", "Germany v Paraguay"]
+];
 
 // ============================================================
 // Default player picks
@@ -3347,6 +3426,33 @@ function renderStrategy() {
     `;
   }).join("");
   document.getElementById("defenceStackPlan").innerHTML = stackHtml;
+
+  // Round of 32 actual draw, sorted by mismatch size (biggest first)
+  const r32El = document.getElementById("r32Draw");
+  if (r32El) {
+    const tierColor = { Huge: "var(--green)", Big: "var(--green)", Moderate: "var(--amber)", Tight: "var(--amber)" };
+    const sorted = [...R32_FIXTURES].sort((a, b) => b.gap - a.gap);
+    r32El.innerHTML = `
+      <table>
+        <thead><tr><th>Match (favourite first)</th><th>Ranks</th><th>Gap</th><th>Tier</th><th>Date</th></tr></thead>
+        <tbody>
+          ${sorted.map(f => {
+            const favRank = Math.min(f.homeRank, f.awayRank);
+            const undRank = Math.max(f.homeRank, f.awayRank);
+            return `
+              <tr>
+                <td><strong>${escapeHtml(f.favourite)}</strong> v ${escapeHtml(f.underdog)}</td>
+                <td style="font-size: 12px;">#${favRank} v #${undRank}</td>
+                <td>${f.gap}</td>
+                <td style="color: ${tierColor[f.tier]}; font-weight: 600;">${f.tier}</td>
+                <td style="font-size: 12px; color: var(--muted);">${escapeHtml(f.date || "—")}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
 
   // Squad spine: count mismatches per team where gap >= 30
   const teamMismatches = {};
