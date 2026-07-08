@@ -931,6 +931,44 @@
   </div>
 
   <div class="panel">
+    <h2>Quarter-finals — the actual draw</h2>
+    <p style="color: var(--muted); font-size: 13px;">R16 done — Norway dumped out Brazil, Switzerland beat Colombia, Morocco beat Canada, Spain edged Portugal. The 4 ties below. Cap is now 5 per nation; 4 free transfers. Deadline 10 Jul 00:00.</p>
+    <div id="qfDraw"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Quarter-finals — your plan</h2>
+    <p style="color: var(--muted); font-size: 13px;">All four ties are competitive (gaps 7–23) — no minnows left. This is a chip-decision round.</p>
+    <details open>
+      <summary>🟢 Play the Max Captain chip</summary>
+      <div>
+        <p style="font-size: 13px;">This is the textbook round for it. The captain choice is a genuine coin-flip — Mbappé (v Morocco, gap 7, but Morocco's defence knocked out Netherlands &amp; Canada), Messi (v Switzerland, gap 16), Bellingham/Kane (v Norway, gap 23 — your best fixture), Lamine (v Belgium, gap 7). Max Captain auto-arms your top scorer and removes the risk of backing the one who blanks. <strong>If playing it manually instead:</strong> the best <em>fixture</em> is England v Norway, so Bellingham or Kane; Mbappé is the highest ceiling but the toughest opponent.</p>
+      </div>
+    </details>
+    <details open>
+      <summary>🔴 Must-do: remove De Fougerolles</summary>
+      <div>
+        <p style="font-size: 13px;">Canada are eliminated — he shows "v –" and cannot score. Use a free transfer to replace him with a playing bench asset (ideally cover in a tie you're light on, e.g. a Norway/Belgium/Switzerland player).</p>
+      </div>
+    </details>
+    <details open>
+      <summary>🟡 France concentration risk (5 players v Morocco)</summary>
+      <div>
+        <p style="font-size: 13px;">You're at the 5-cap on France (Hernández, Olise, Dembélé, Mbappé, Lacroix) — all in one gap-7 tie against the tournament's giant-killer. Morocco have been superb defensively (knocked out the Netherlands and Canada), so if France are shut out your whole spine misfires at once, captain included. Consider trimming to 3–4 France and diversifying toward England v Norway (better fixture), or at minimum don't <em>also</em> captain into Morocco — that's what Max Captain is for.</p>
+      </div>
+    </details>
+    <details open>
+      <summary>🟢 Holds &amp; the semi-final watch</summary>
+      <div>
+        <ul style="margin: 6px 0 0 18px; font-size: 13px;">
+          <li><strong>Nailed:</strong> Messi, Bellingham, Kane, Lamine, Mbappé. The Argentina back line (Martínez + Medina + Otamendi v Switzerland, gap 16) is a fair clean-sheet bet — Switzerland are low-scoring.</li>
+          <li><strong>SF cap rises to 6</strong> (deadline 10 Jul, SF 14 Jul). <strong>Watch a France v England semi-final</strong> — if both win their QF they could meet, and you're heavily invested in both. Plan that swap once the QF results land.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <div class="panel">
     <h2>Round of 16 — the actual draw</h2>
     <p style="color: var(--muted); font-size: 13px;">R32 done (Germany &amp; Netherlands both dumped out on penalties). All 8 ties below, sorted by mismatch size. Cap is now 4 per nation; you get 4 free transfers (no rollover).</p>
     <div id="r16Draw"></div>
@@ -1483,6 +1521,27 @@ const R16_FIXTURES = [
 
 R16_FIXTURES.forEach(f => {
   f.round = 16;
+  f.homeRank = RANKINGS[f.home] || 99;
+  f.awayRank = RANKINGS[f.away] || 99;
+  f.gap = Math.abs(f.homeRank - f.awayRank);
+  f.favourite = f.homeRank < f.awayRank ? f.home : f.away;
+  f.underdog = f.homeRank < f.awayRank ? f.away : f.home;
+  f.tier = f.gap >= 40 ? "Huge" : f.gap >= 20 ? "Big" : f.gap >= 8 ? "Moderate" : "Tight";
+});
+
+// ============================================================
+// Quarter-finals — actual draw (R16 complete, 8 Jul 2026)
+// R16 upsets: Norway knocked out Brazil, Switzerland beat Colombia,
+// Morocco beat Canada; Spain edged Portugal in the heavyweight tie.
+// ============================================================
+const QF_FIXTURES = [
+  { home: "Argentina", away: "Switzerland", date: "", venue: "" },
+  { home: "France", away: "Morocco", date: "", venue: "" },
+  { home: "England", away: "Norway", date: "", venue: "" },
+  { home: "Spain", away: "Belgium", date: "", venue: "" }
+];
+QF_FIXTURES.forEach(f => {
+  f.round = 8;
   f.homeRank = RANKINGS[f.home] || 99;
   f.awayRank = RANKINGS[f.away] || 99;
   f.gap = Math.abs(f.homeRank - f.awayRank);
@@ -3511,6 +3570,7 @@ function renderStrategy() {
       </table>
     `;
   };
+  renderKnockout("qfDraw", QF_FIXTURES);
   renderKnockout("r16Draw", R16_FIXTURES);
 
   // Round of 32 actual draw, sorted by mismatch size (biggest first)
