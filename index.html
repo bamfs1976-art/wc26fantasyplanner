@@ -931,6 +931,48 @@
   </div>
 
   <div class="panel">
+    <h2>Semi-finals — the collision round</h2>
+    <p style="color: var(--muted); font-size: 13px;">All four semi-finalists are teams you own. Both ties are all-elite coin-flips (gap 1). Cap is now 6; 5 free transfers. Deadline 14 Jul 23:00.</p>
+    <div id="sfDraw"></div>
+    <p style="color: var(--amber); font-size: 12px; margin-top: 6px;"><strong>Both semis are internal collisions:</strong> your Argentina block plays your England block; your Spain block plays your France block. Whoever wins each tie scores for you — the losing side blanks. It's a built-in hedge that also caps your ceiling.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Semi-finals &amp; final — approach</h2>
+    <details open>
+      <summary>🔴 Must-do: clear the two dead players</summary>
+      <div>
+        <p style="font-size: 13px;"><strong>Heggem (Norway)</strong> and <strong>El Mourabet (Morocco)</strong> are eliminated (both show "v –"). Transfer them out — that's 2 of your 5 free transfers.</p>
+      </div>
+    </details>
+    <details open>
+      <summary>🟢 Keep your powder dry — the FINAL is the all-in round</summary>
+      <div>
+        <ul style="margin: 6px 0 0 18px; font-size: 13px;">
+          <li>The final gives you <strong>6 transfers and a cap of 8</strong> — and you'll <em>know</em> the two finalists. That's when you load up (up to 8 from one nation).</li>
+          <li>So don't over-commit now: fix the two dead players, maybe one upgrade, but preserve budget/flexibility. Don't burn transfers boosting a side you expect to lose its semi.</li>
+        </ul>
+      </div>
+    </details>
+    <details open>
+      <summary>🟡 Captaincy — another coin-flip</summary>
+      <div>
+        <p style="font-size: 13px;">Every SF side faces an elite opponent, so there's no soft captain spot. <strong>If you still hold Max Captain, this is a strong round to play it</strong> (auto-arms your top scorer). If it's spent, captain the highest-ceiling player on the side you back to win — Mbappé (v Spain) or Messi (v England).</p>
+      </div>
+    </details>
+    <details open>
+      <summary>🏆 The final (19 Jul) — empty the locker</summary>
+      <div>
+        <ul style="margin: 6px 0 0 18px; font-size: 13px;">
+          <li>Rebuild around the two finalists with your 6 transfers and cap 8 — stack the side you fancy (attackers for ceiling, a defender or two for the clean-sheet punt).</li>
+          <li>Captain the best attacker in the match.</li>
+          <li><strong>Start any chip you are still holding</strong> (Max Captain / Mystery) — there is no round after this to save it for.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <div class="panel">
     <h2>Quarter-finals — the actual draw</h2>
     <p style="color: var(--muted); font-size: 13px;">R16 done — Norway dumped out Brazil, Switzerland beat Colombia, Morocco beat Canada, Spain edged Portugal. The 4 ties below. Cap is now 5 per nation; 4 free transfers. Deadline 10 Jul 00:00.</p>
     <div id="qfDraw"></div>
@@ -1542,6 +1584,25 @@ const QF_FIXTURES = [
 ];
 QF_FIXTURES.forEach(f => {
   f.round = 8;
+  f.homeRank = RANKINGS[f.home] || 99;
+  f.awayRank = RANKINGS[f.away] || 99;
+  f.gap = Math.abs(f.homeRank - f.awayRank);
+  f.favourite = f.homeRank < f.awayRank ? f.home : f.away;
+  f.underdog = f.homeRank < f.awayRank ? f.away : f.home;
+  f.tier = f.gap >= 40 ? "Huge" : f.gap >= 20 ? "Big" : f.gap >= 8 ? "Moderate" : "Tight";
+});
+
+// ============================================================
+// Semi-finals — actual draw (QF complete, 11 Jul 2026)
+// England beat Norway, France beat Morocco, Argentina beat Switzerland,
+// Spain beat Belgium. Both semis are all-elite coin-flips.
+// ============================================================
+const SF_FIXTURES = [
+  { home: "Argentina", away: "England", date: "14 Jul", venue: "" },
+  { home: "Spain", away: "France", date: "15 Jul", venue: "" }
+];
+SF_FIXTURES.forEach(f => {
+  f.round = 4;
   f.homeRank = RANKINGS[f.home] || 99;
   f.awayRank = RANKINGS[f.away] || 99;
   f.gap = Math.abs(f.homeRank - f.awayRank);
@@ -3570,6 +3631,7 @@ function renderStrategy() {
       </table>
     `;
   };
+  renderKnockout("sfDraw", SF_FIXTURES);
   renderKnockout("qfDraw", QF_FIXTURES);
   renderKnockout("r16Draw", R16_FIXTURES);
 
